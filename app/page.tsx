@@ -11,7 +11,8 @@ import ContactSection from "@/components/landing/contact-section";
 import FAQSection from "@/components/landing/faq-section";
 import CTASection from "@/components/landing/cta-section";
 
-export default function HomePage() {
+export default async function HomePage() {
+
   return (
     <div className="min-h-screen bg-white">
       <Header />

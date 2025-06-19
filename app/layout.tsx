@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "sonner";
+import QueryProvider from "@/providers/query-provider";
 
 export const metadata: Metadata = {
   title: "Hidden Props",
@@ -14,7 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+        <Toaster position="top-right" />
+      </body>
     </html>
   );
 }
