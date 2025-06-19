@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
@@ -9,6 +9,16 @@ export default {
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "1rem",
+      screens: {
+        sm: "640px",
+        md: "768px",
+        lg: "1280px",
+        xl: "1400px",
+      },
+    },
     extend: {
       colors: {
         background: "hsl(var(--background))",
@@ -60,4 +70,4 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config
+} satisfies Config;
