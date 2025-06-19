@@ -10,7 +10,8 @@ import FAQSection from "@/components/faq-section"
 import CTASection from "@/components/cta-section"
 import Footer from "@/components/footer"
 
-export default function HomePage() {
+export default async function HomePage() {
+
   return (
     <div className="min-h-screen bg-white">
       <Header />

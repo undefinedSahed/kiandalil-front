@@ -25,7 +25,7 @@ export default function DashboardLayout({
                         <div className="sticky top-0 z-10 flex ">
                             <DashboardHeader />
                         </div>
-                        <main className="md:ml-[15px]">{children}</main>
+                        <main className="md:mx-16 md:py-7">{children}</main>
                     </div>
                 </div>
             </SidebarProvider>

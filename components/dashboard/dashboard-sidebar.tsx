@@ -41,8 +41,8 @@ const menuItems = [
         icon: Users,
     },
     {
-        title: "Agents",
-        url: "/dashboard/agents",
+        title: "Approve Page",
+        url: "/dashboard/approve-page",
         icon: Verified,
     },
     {
@@ -82,7 +82,7 @@ export function DashboardSidebar({
                             className="mx-auto h-[80px] w-[80px] object-contain mb-4"
                         />
                     </Link>
-                    <SidebarMenu className="space-y-2 ">
+                    <SidebarMenu className="space-y-5">
                         {menuItems.map((item) => (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton
