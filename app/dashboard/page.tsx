@@ -72,7 +72,7 @@ export default function Dashboard() {
                             <Progress value={75} className="w-96 h-2" />
                             <p className="text-gray-400">431 more to break last month record</p>
                         </div>
-                        <div className="text-6xl font-bold">{approvedProperties.length}</div>
+                        <div className="text-6xl font-bold">{approvedProperties?.length}</div>
                     </div>
                 </CardContent>
             </Card>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import QueryProvider from "@/providers/query-provider";
+import 'react-quill/dist/quill.snow.css';
 
 export const metadata: Metadata = {
   title: "Hidden Props",
