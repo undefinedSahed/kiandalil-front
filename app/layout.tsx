@@ -1,5 +1,7 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import SessionWrapper from "./SessionWrapper";
 import { Toaster } from "sonner";
 import QueryProvider from "@/providers/query-provider";
 import 'react-quill/dist/quill.snow.css';
@@ -18,9 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
+        <SessionWrapper>        
+          <QueryProvider>
           {children}
         </QueryProvider>
+        </SessionWrapper>
         <Toaster position="top-right" />
       </body>
     </html>
