@@ -11,32 +11,35 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import { useSession, signOut } from "next-auth/react";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { signOut, useSession } from "next-auth/react";
 
 export function DashboardHeader() {
-    // const { data: session, status } = useSession();
-    // const { profile, loading } = useUserProfile();
+    const { data: session, status } = useSession();
+    const { profile, loading } = useUserProfile();
 
-    // const handleLogout = async () => {
-    //     await signOut({ callbackUrl: "/" });
-    // };
+    const handleLogout = async () => {
+        await signOut({ callbackUrl: "/" });
+    };
 
-    // const getUserInitials = () => {
-    //     if (!profile) return "U";
-    //     const firstInitial = profile.firstName ? profile.firstName[0] : "";
-    //     const lastInitial = profile.lastName ? profile.lastName[0] : "";
-    //     return `${firstInitial}${lastInitial}`.toUpperCase();
-    // };
+    const getUserInitials = () => {
+        if (!profile) return "U";
+        const firstInitial = profile.firstName ? profile.firstName[0] : "";
+        const lastInitial = profile.lastName ? profile.lastName[0] : "";
+        return `${firstInitial}${lastInitial}`.toUpperCase();
+    };
 
-    // const getFullName = () => {
-    //     if (!profile) return "User";
-    //     return `${profile.firstName} ${profile.lastName}`.trim();
-    // };
+    const getFullName = () => {
+        if (!profile) return "User";
+        return `${profile.firstName} ${profile.lastName}`.trim();
+    };
+
+    console.log(session)
 
     return (
         <header className="flex w-full items-center justify-between border-b border-[#222] bg-[#131313] p-4 backdrop-blur-xl">
             <h1 className="text-xl font-bold">Dashboard</h1>
 
-            {/* <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
                 {status === "authenticated" && session ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -117,9 +120,7 @@ export function DashboardHeader() {
                         <span className="hidden text-sm text-white md:block">Guest</span>
                     </div>
                 )}
-            </div> */}
-
-            <h2 className="text-white">User</h2>
+            </div>
         </header>
     );
 }

@@ -9,12 +9,12 @@ const api = axios.create({
     baseURL: API_URL,
 });
 
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODRjMDdiNjNhZGU3ZjUzNzhiZTA5MjkiLCJlbWFpbCI6InppaGFkdWxpc2xhbS5iZGNhbGxpbmdAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUwNDEwMjk2LCJleHAiOjE3NTA0OTY2OTZ9.a-274L1uBV67Uex9Oeiv3k4zyd9BIRogg7CI8LdO4iY"
 
 // Add request interceptor to add auth token
 api.interceptors.request.use(
     async (config) => {
-        // const session = await getSession();
+        const session = await getSession()
+        const TOKEN = session?.user?.accessToken
         if (TOKEN) {
             config.headers.Authorization = `Bearer ${TOKEN}`;
         }
