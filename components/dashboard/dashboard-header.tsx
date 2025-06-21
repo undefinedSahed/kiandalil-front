@@ -9,28 +9,27 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { useSession, signOut } from "next-auth/react";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { signOut, useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSingleUser } from "@/lib/api";
 
 export function DashboardHeader() {
     const { data: session, status } = useSession();
     const { profile, loading } = useUserProfile();
 
+
+    const { data: userDetails, isLoading, isError } = useQuery({
+        queryKey: ["userDetails", "684c07b63ade7f5378be0929"],
+        queryFn: ({ queryKey }) => fetchSingleUser(queryKey[1] as string),
+        select: (data) => data.data,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    console.log(userDetails)
+
     const handleLogout = async () => {
         await signOut({ callbackUrl: "/" });
-    };
-
-    const getUserInitials = () => {
-        if (!profile) return "U";
-        const firstInitial = profile.firstName ? profile.firstName[0] : "";
-        const lastInitial = profile.lastName ? profile.lastName[0] : "";
-        return `${firstInitial}${lastInitial}`.toUpperCase();
-    };
-
-    const getFullName = () => {
-        if (!profile) return "User";
-        return `${profile.firstName} ${profile.lastName}`.trim();
     };
 
     console.log(session)
@@ -46,23 +45,23 @@ export function DashboardHeader() {
                             <div className="flex cursor-pointer items-center space-x-2">
                                 <Avatar className="border border-red-600">
                                     <AvatarImage
-                                        src={profile?.imageLink || ""}
-                                        alt={getFullName()}
+                                        src={userDetails?.avatar?.url}
+                                        alt={userDetails?.name}
                                         className="object-cover"
                                     />
                                     <AvatarFallback className="bg-red-900 text-white">
                                         {loading ? (
                                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                         ) : (
-                                            getUserInitials()
+                                            userDetails?.name.split(" ").map((word: string) => word[0]).join("").toUpperCase()
                                         )}
                                     </AvatarFallback>
                                 </Avatar>
                                 <span className="hidden text-sm text-white md:block">
-                                    {loading ? "Loading..." : getFullName()}
-                                    {profile?.role && (
+                                    {loading ? "Loading..." : userDetails?.name}
+                                    {userDetails?.role && (
                                         <span className="ml-1 text-xs text-red-300">
-                                            ({profile.role})
+                                            ({userDetails?.role})
                                         </span>
                                     )}
                                 </span>
@@ -73,7 +72,7 @@ export function DashboardHeader() {
                             <div className="flex items-center justify-start gap-2 p-2">
                                 <div className="flex flex-col space-y-1 text-left">
                                     <p className="text-sm font-medium leading-none">
-                                        {loading ? "Loading..." : getFullName()}
+                                        {loading ? "Loading..." : userDetails?.name}
                                     </p>
                                     <p className="text-xs leading-none text-muted-foreground">
                                         {loading ? "Loading..." : profile?.email}
