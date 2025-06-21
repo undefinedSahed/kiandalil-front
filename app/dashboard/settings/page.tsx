@@ -1,17 +1,16 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react" // Import useEffect
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Edit, Save } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
-import { fetchSingleUser } from "@/lib/api" // Ensure this path is correct
+import { Edit, Save, Upload } from "lucide-react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { fetchSingleUser, updateUserProfile } from "@/lib/api"
 
-// Import for react-hook-form and zod
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -23,42 +22,41 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import { toast } from "sonner"
 
-// Define the Zod schema for your form data
-// We are making fields optional if they are not directly provided by the API
-// but exist in your form (e.g., lastName, country, cityState, bio)
 const profileFormSchema = z.object({
     firstName: z.string().min(1, {
         message: "First Name is required.",
     }),
-    lastName: z.string().optional(), // Not in API response example
+    lastName: z.string().optional(),
     email: z.string().email({
         message: "Please enter a valid email address.",
     }),
-    phone: z.string().optional(), // Mapped from whatsappNum
-    country: z.string().optional(), // Not in API response example
-    cityState: z.string().optional(), // Not in API response example
-    bio: z.string().optional(), // Not in API response example
+    phone: z.string().optional(),
+    country: z.string().optional(),
+    cityState: z.string().optional(),
+    bio: z.string().optional(),
 });
 
-// Infer the type from the schema for strong typing
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function SettingsPage() {
     const [isEditing, setIsEditing] = useState(false);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
+    const queryClient = useQueryClient();
 
-    // Initialize react-hook-form with a resolver and default values
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-            firstName: "John",
-            lastName: ".....",
-            email: "steward@gmail.com",
-            phone: "(307) 555-0133",
-            country: "USA",
-            cityState: "Berlin",
-            bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            country: "",
+            cityState: "",
+            bio: "",
         },
     });
 
@@ -68,7 +66,6 @@ export default function SettingsPage() {
         confirmPassword: "",
     });
 
-    // Fetch user details using react-query
     const { data: userDetails, isLoading, isError } = useQuery({
         queryKey: ["userDetails", "684c07b63ade7f5378be0929"],
         queryFn: ({ queryKey }) => fetchSingleUser(queryKey[1] as string),
@@ -76,29 +73,62 @@ export default function SettingsPage() {
         staleTime: 5 * 60 * 1000,
     });
 
-    // Use useEffect to update the form's default values once userDetails is fetched
     useEffect(() => {
         if (userDetails) {
             form.reset({
-                firstName: userDetails.name || "",
-                lastName: "", // API doesn't provide lastName directly
-                email: userDetails.email || "",
-                phone: userDetails.whatsappNum || "", // Map whatsappNum to phone
-                // Keep existing dummy data for fields not present in API response
-                country: form.getValues("country"), // Get current value from form state
-                cityState: form.getValues("cityState"),
-                bio: form.getValues("bio"),
+                firstName: userDetails.name.split(' ')[0] || "",
+                lastName: userDetails.name.split(' ')[1] || "",
+                email: userDetails.email || "---",
+                phone: userDetails.whatsappNum || "",
+                country: userDetails.country || "",
+                cityState: userDetails.cityState || "",
+                bio: userDetails.bio || "",
             });
+            setAvatarPreview(userDetails.avatar?.url || null);
         }
-    }, [userDetails, form.reset]); // Re-run when userDetails changes or form.reset is available
+    }, [userDetails, form]);
 
-    // Handle form submission using react-hook-form's handleSubmit
-    const onSubmit = (data: ProfileFormValues) => {
-        console.log("Saving user data (Shadcn Form):", data);
-        // Here you would typically send `data` to your API for update
-        setIsEditing(false);
-        alert("Profile updated successfully!");
-        // If API call fails, you might want to revert `isEditing` or show an error
+    const onSubmit = async (data: ProfileFormValues) => {
+        const name = `${data.firstName} ${data.lastName || ""}`.trim();
+
+        const payload: any = {
+            name,
+            email: data.email,
+            whatsappNum: data.phone, // Assuming whatsappNum for phone
+            country: data.country,
+            cityState: data.cityState,
+            bio: data.bio,
+        };
+
+        if (avatarPreview) {
+            payload.avatar = { url: avatarPreview };
+        }
+
+        try {
+            const res = await updateUserProfile(userDetails?._id, payload);
+            setIsEditing(false);
+            toast.success(res.message);
+            queryClient.invalidateQueries({ queryKey: ["userDetails", "684c07b63ade7f5378be0929"] });
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update profile.");
+        }
+    };
+
+    const handleAvatarClick = () => {
+        if (avatarInputRef.current && isEditing) {
+            avatarInputRef.current.click();
+        }
+    };
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,18 +140,13 @@ export default function SettingsPage() {
 
     const handlePasswordSave = () => {
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            alert("New passwords do not match!");
+            toast.error("New passwords do not match!");
             return;
         }
-        // Here you would typically save to an API
-        console.log("Updating password");
-        setPasswordData({
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-        });
+        console.log("Updating password with data:", passwordData);
+        setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
         setShowPasswordForm(false);
-        alert("Password updated successfully!");
+        toast.success("Password updated successfully!");
     };
 
     const handleEdit = () => {
@@ -131,33 +156,25 @@ export default function SettingsPage() {
 
     const handleChangePassword = () => {
         setShowPasswordForm(true);
-        setIsEditing(true); // Allow editing when password form is shown
+        setIsEditing(false);
     };
 
-    // Show loading state or error message while data is being fetched
-    if (isLoading) {
-        return <div className="space-y-6 max-w-4xl mx-auto py-8 text-center">Loading user data...</div>;
-    }
+    if (isLoading) return <div className="text-center py-8">Loading user data...</div>;
+    if (isError) return <div className="text-center py-8 text-red-500">Error loading user data.</div>;
 
-    if (isError) {
-        return <div className="space-y-6 max-w-4xl mx-auto py-8 text-center text-red-500">Error loading user data.</div>;
-    }
-
-    // Determine the name to display (from API or fallback)
     const displayName = userDetails?.name || form.getValues("firstName") || "N/A";
-    const displayEmail = userDetails?.email || form.getValues("email") || "N/A";
-    const displayBio = form.getValues("bio"); // Bio is from static data or updated form
-
+    const displayBio = form.getValues("bio");
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">Personal Information</h1>
                 <Button
-                    onClick={isEditing ? form.handleSubmit(onSubmit) : handleEdit} // Use form.handleSubmit for Save
+                    onClick={isEditing && !showPasswordForm ? form.handleSubmit(onSubmit) : handleEdit}
                     className="bg-black text-white hover:bg-gray-800"
+                    disabled={showPasswordForm}
                 >
-                    {isEditing ? (
+                    {isEditing && !showPasswordForm ? (
                         <>
                             <Save className="w-4 h-4 mr-2" />
                             Save
@@ -174,27 +191,45 @@ export default function SettingsPage() {
             <Card>
                 <CardContent className="p-8">
                     <div className="flex flex-col md:flex-row items-start justify-between gap-8 md:gap-4">
-                        <div className="flex flex-col items-center space-y-4 md:basis-1/4">
-                            <Avatar className="w-32 h-32">
-                                <AvatarImage src={userDetails?.avatar?.url || "/placeholder-user.jpg"} />
-                                <AvatarFallback>
-                                    {/* eslint-diable-next-line @typescript-eslint/no-explicit-any */}
-                                    {displayName.split(' ').map((n: any) => n[0]).join('').toUpperCase().substring(0, 2) || "NN"}
-                                </AvatarFallback>
-                            </Avatar>
-                            <h2 className="text-xl font-bold">{displayName}</h2>
+                        {/* Adjusted section for the avatar and name with gray background */}
+                        <div className="md:basis-1/4 flex justify-center md:justify-start">
+                            <div className="relative rounded-full px-8 py-4 flex flex-col items-center justify-center min-w-[200px]">
+                                <div className="relative group mb-2"> {/* Added group for hover effect */}
+                                    <Avatar className="w-24 h-24 cursor-pointer" onClick={isEditing ? handleAvatarClick : undefined}>
+                                        <AvatarImage src={avatarPreview || userDetails?.avatar?.url || "/placeholder-user.jpg"} />
+                                        <AvatarFallback>
+                                            {displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2) || "NN"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    {isEditing && (
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                                            onClick={handleAvatarClick}
+                                        >
+                                            <Upload className="text-white w-8 h-8" />
+                                        </div>
+                                    )}
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    ref={avatarInputRef}
+                                    onChange={handleAvatarChange}
+                                />
+                                <h2 className="text-lg font-bold text-gray-800">{displayName}</h2>
+                            </div>
                         </div>
 
-                        {/* Bio Section */}
-                        <div className="md:basis-3/4 max-w-full text-center md:text-left">
+
+                        <div className="md:basis-3/4 max-w-full text-center">
                             <h3 className="text-xl font-semibold mb-4">Bio</h3>
-                            <p className="text-gray-600 leading-relaxed text-base">{displayBio}</p>
+                            <p className="text-gray-600 leading-relaxed text-base">{displayBio || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. "}</p>
                         </div>
                     </div>
 
-                    {/* Form Fields using Shadcn Form components */}
                     <div className="mt-8 space-y-6">
-                        <Form {...form}> {/* Wrap your form fields with the Form component */}
+                        <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <FormField
@@ -206,10 +241,10 @@ export default function SettingsPage() {
                                                 <FormControl>
                                                     <Input
                                                         id="firstName"
-                                                        placeholder="John" // Added placeholder
-                                                        disabled={!isEditing}
+                                                        placeholder="John"
+                                                        disabled={!isEditing || showPasswordForm}
                                                         className="mt-1"
-                                                        {...field} // Binds value, onChange, onBlur etc.
+                                                        {...field}
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -225,8 +260,8 @@ export default function SettingsPage() {
                                                 <FormControl>
                                                     <Input
                                                         id="lastName"
-                                                        placeholder="..." // Added placeholder
-                                                        disabled={!isEditing}
+                                                        placeholder="..."
+                                                        disabled={!isEditing || showPasswordForm}
                                                         className="mt-1"
                                                         {...field}
                                                     />
@@ -250,7 +285,7 @@ export default function SettingsPage() {
                                                         id="email"
                                                         type="email"
                                                         placeholder="email@example.com"
-                                                        disabled={!isEditing}
+                                                        disabled={true}
                                                         className="mt-1"
                                                         {...field}
                                                     />
@@ -268,8 +303,8 @@ export default function SettingsPage() {
                                                 <FormControl>
                                                     <Input
                                                         id="phone"
-                                                        placeholder="(xxx) xxx-xxxx" // Added placeholder
-                                                        disabled={!isEditing}
+                                                        placeholder="(xxx) xxx-xxxx"
+                                                        disabled={!isEditing || showPasswordForm}
                                                         className="mt-1"
                                                         {...field}
                                                     />
@@ -290,8 +325,8 @@ export default function SettingsPage() {
                                                 <FormControl>
                                                     <Input
                                                         id="country"
-                                                        placeholder="USA" // Added placeholder
-                                                        disabled={!isEditing}
+                                                        placeholder="USA"
+                                                        disabled={!isEditing || showPasswordForm}
                                                         className="mt-1"
                                                         {...field}
                                                     />
@@ -309,8 +344,8 @@ export default function SettingsPage() {
                                                 <FormControl>
                                                     <Input
                                                         id="cityState"
-                                                        placeholder="New York, NY" // Added placeholder
-                                                        disabled={!isEditing}
+                                                        placeholder="New York, NY"
+                                                        disabled={!isEditing || showPasswordForm}
                                                         className="mt-1"
                                                         {...field}
                                                     />
@@ -320,13 +355,28 @@ export default function SettingsPage() {
                                         )}
                                     />
                                 </div>
-                                {/* No explicit submit button here for the main form.
-                                    The top "Save" button will trigger this form's submission. */}
+                                <FormField
+                                    control={form.control}
+                                    name="bio"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-sm font-medium text-gray-700">Bio</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    id="bio"
+                                                    placeholder="Tell us about yourself..."
+                                                    disabled={!isEditing || showPasswordForm}
+                                                    className="mt-1"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </form>
                         </Form>
 
-
-                        {/* Change Password Section */}
                         {showPasswordForm && (
                             <div className="mt-8 pt-8 border-t">
                                 <h3 className="text-lg font-semibold mb-6 text-center">Change Your Password</h3>
@@ -383,20 +433,24 @@ export default function SettingsPage() {
                                     </div>
 
                                     <Button onClick={handlePasswordSave} className="w-full bg-black text-white hover:bg-gray-800 mt-6">
-                                        Save
+                                        Save Password
                                     </Button>
                                 </div>
                             </div>
                         )}
 
-                        {/* Change Password Button - Only show when not in password form mode */}
-                        {!showPasswordForm && (
-                            <div className="flex justify-end mt-8">
+                        <div className="flex justify-end mt-8">
+                            {!showPasswordForm && (
                                 <Button onClick={handleChangePassword} className="bg-black text-white hover:bg-gray-800">
                                     Change Password
                                 </Button>
-                            </div>
-                        )}
+                            )}
+                            {showPasswordForm && (
+                                <Button onClick={() => setShowPasswordForm(false)} variant="outline">
+                                    Cancel Password Change
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </CardContent>
             </Card>

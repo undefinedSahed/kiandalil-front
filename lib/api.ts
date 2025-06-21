@@ -89,3 +89,14 @@ export async function fetchSingleUser(id: string) {
         throw new Error(error.response?.data?.message || "Failed to fetch user details");
     }
 }
+
+
+
+export async function updateUserProfile(id: string, data: any) {
+    try {
+        const response = await api.patch(`user/profile/update/${id}`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to update user profile");
+    }
+}
