@@ -48,6 +48,7 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -88,7 +89,168 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+
+/* === Quill Alignment Fix === */
+
+/* React Quill 2.0.0 specific fixes */
+.ql-container {
+  font-size: 14px;
+}
+
+.ql-editor {
+  min-height: 200px;
+  padding: 12px 15px;
+}
+
+.ql-toolbar {
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+}
+
+.ql-container {
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+/* Fix for dark mode if needed */
+.dark .ql-toolbar,
+.dark .ql-container {
+  border-color: hsl(var(--border));
+}
+
+.dark .ql-editor {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.ql-align-center {
+  text-align: center;
+}
+
+.ql-align-right {
+  text-align: right;
+}
+
+.ql-align-justify {
+  text-align: justify;
+}
+
+/* === Quill Indentation === */
+.ql-indent-1 {
+  padding-left: 2em;
+}
+
+.ql-indent-2 {
+  padding-left: 4em;
+}
+
+.ql-indent-3 {
+  padding-left: 6em;
+}
+
+/* === Quill Font Sizes === */
+.ql-size-small {
+  font-size: 0.75em;
+}
+
+.ql-size-large {
+  font-size: 1.5em;
+}
+
+.ql-size-huge {
+  font-size: 2.5em;
+}
+
+/* === Quill Blockquote === */
+.ql-blockquote {
+  border-left: 4px solid #ccc;
+  margin: 1em 0;
+  padding-left: 1em;
+  color: #555;
+  font-style: italic;
+}
+
+/* === Quill Code Block === */
+.ql-code-block {
+  background-color: #f9f9f9;
+  padding: 0.5em;
+  font-family: monospace;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+/* === Quill Lists === */
+.ql-editor ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+}
+
+.ql-editor ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+}
+
+
+.quill-content {
+  @apply text-gray-800 text-base leading-relaxed;
+
+  /* Allow Quill formats */
+}
+
+.quill-content ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.quill-content ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.quill-content li {
+  @apply mb-2;
+}
+
+.quill-content p {
+  @apply mb-4;
+}
+
+.quill-content img {
+  @apply rounded max-w-full;
+}
+
+/* Alignment fixes */
+.quill-content .ql-align-right {
+  text-align: right;
+}
+
+.quill-content .ql-align-center {
+  text-align: center;
+}
+
+.quill-content .ql-align-justify {
+  text-align: justify;
+}
+
+.quill-content img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.quill-content h1 {
+  @apply text-4xl font-bold;
+}
+
+.quill-content h2 {
+  @apply text-3xl font-semibold;
+}
+
+.quill-content h3 {
+  @apply text-2xl font-medium;
 }

@@ -2,6 +2,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SessionWrapper from "./SessionWrapper";
+import { Toaster } from "sonner";
+import QueryProvider from "@/providers/query-provider";
+import 'react-quill/dist/quill.snow.css';
 
 export const metadata: Metadata = {
   title: "Hidden Props",
@@ -17,7 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SessionWrapper>{children}</SessionWrapper>
+        <SessionWrapper>        
+          <QueryProvider>
+          {children}
+        </QueryProvider>
+        </SessionWrapper>
+        <Toaster position="top-right" />
       </body>
     </html>
   );
