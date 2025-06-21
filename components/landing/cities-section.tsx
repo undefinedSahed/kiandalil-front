@@ -1,7 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import Image from "next/image"
+import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { use } from "react";
 
 const cities = [
   {
@@ -39,9 +41,11 @@ const cities = [
     image: "/placeholder.svg?height=300&width=400",
     className: "bg-gradient-to-br from-gray-600/20 to-gray-800/20",
   },
-]
+];
 
 export default function CitiesSection() {
+  const session = useSession();
+  console.log(session);
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -53,8 +57,12 @@ export default function CitiesSection() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl font-bold text-[#191919] mb-4">Find Properties in these cities</h2>
-          <p className="text-gray-600 text-lg">Lorem Ipsum has been the industry's standard dummy</p>
+          <h2 className="text-4xl font-bold text-[#191919] mb-4">
+            Find Properties in these cities
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Lorem Ipsum has been the industry's standard dummy
+          </p>
         </motion.div>
 
         {/* Cities Grid */}
@@ -87,12 +95,14 @@ export default function CitiesSection() {
               {/* City Info */}
               <div className="absolute bottom-4 left-4 text-white">
                 <h3 className="text-xl font-semibold mb-1">{city.name}</h3>
-                <p className="text-sm opacity-90">{city.properties} Properties</p>
+                <p className="text-sm opacity-90">
+                  {city.properties} Properties
+                </p>
               </div>
             </motion.div>
           ))}
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,5 +1,7 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import SessionWrapper from "./SessionWrapper";
 
 export const metadata: Metadata = {
   title: "Hidden Props",
@@ -14,7 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <SessionWrapper>{children}</SessionWrapper>
+      </body>
     </html>
   );
 }
