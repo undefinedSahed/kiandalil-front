@@ -1,14 +1,15 @@
-import Header from "@/components/header"
-import HeroSection from "@/components/hero-section"
-import CitiesSection from "@/components/cities-section"
-import StatsSection from "@/components/stats-section"
-import FeaturedProperties from "@/components/featured-properties"
-import ServicesSection from "@/components/services-section"
-import TestimonialsSection from "@/components/testimonials-section"
-import ContactSection from "@/components/contact-section"
-import FAQSection from "@/components/faq-section"
-import CTASection from "@/components/cta-section"
-import Footer from "@/components/footer"
+import Header from "@/components/header";
+
+import Footer from "@/components/footer";
+import HeroSection from "@/components/landing/hero-section";
+import CitiesSection from "@/components/landing/cities-section";
+import StatsSection from "@/components/landing/stats-section";
+import FeaturedProperties from "@/components/landing/featured-properties";
+import ServicesSection from "@/components/landing/services-section";
+import TestimonialsSection from "@/components/landing/testimonials-section";
+import ContactSection from "@/components/landing/contact-section";
+import FAQSection from "@/components/landing/faq-section";
+import CTASection from "@/components/landing/cta-section";
 
 export default async function HomePage() {
 
@@ -26,5 +27,5 @@ export default async function HomePage() {
       <CTASection />
       <Footer />
     </div>
-  )
+  );
 }
