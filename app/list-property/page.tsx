@@ -229,77 +229,6 @@ export default function ListPropertyPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-[#191919] text-white py-4">
-        <div className="container mx-auto px-4 flex items-center justify-between">
-          <div className="text-xl font-bold">Hidden Prop</div>
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="/" className="hover:text-gray-300">
-              Buy
-            </a>
-            <a href="/" className="hover:text-gray-300">
-              Wishlist
-            </a>
-            <a href="/contact" className="hover:text-gray-300">
-              Contact
-            </a>
-            <div className="relative group">
-              <button className="hover:text-gray-300 flex items-center">
-                About Company
-                <svg
-                  className="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-            </div>
-            <a href="/list-property" className="text-white">
-              List your property
-            </a>
-          </nav>
-          <div className="flex items-center space-x-4">
-            <button className="p-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </button>
-            <button className="p-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -764,7 +693,7 @@ export default function ListPropertyPage() {
                   className="w-full bg-[#191919] hover:bg-[#2a2a2a] text-white py-3"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Creating..." : "Apply"}
+                  {isSubmitting ? "Creating..." : "Create Listing"}
                 </Button>
               </form>
             </Form>
