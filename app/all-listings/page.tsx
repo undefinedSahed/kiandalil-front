@@ -64,26 +64,35 @@ function AllListingsContent() {
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Initialize filters from URL params
+  const initialSearch = searchParams.get("search") || "";
+  const initialType = searchParams.get("type") || "All Types";
+  const initialMinPrice = searchParams.get("minPrice") || "";
+  const initialMaxPrice = searchParams.get("maxPrice") || "";
+  const initialBeds = searchParams.get("beds") || "Any";
+  const initialCountry = searchParams.get("country") || "";
+  const initialSortBy = searchParams.get("sortBy") || "Most Recent";
+
   // Filter states
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || ""
-  );
-  const [houseType, setHouseType] = useState(
-    searchParams.get("houseType") || "All Types"
-  );
-  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
-  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
-  const [beds, setBeds] = useState(searchParams.get("beds") || "Any");
-  const [sortBy, setSortBy] = useState(
-    searchParams.get("sortBy") || "Most Recent"
-  );
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [houseType, setHouseType] = useState(initialType);
+  const [minPrice, setMinPrice] = useState(initialMinPrice);
+  const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
+  const [beds, setBeds] = useState(initialBeds);
+  const [country, setCountry] = useState(initialCountry);
+  const [sortBy, setSortBy] = useState(initialSortBy);
 
   // Update URL parameters
-  const updateURL = (filters: Record<string, string>) => {
+  const updateURL = () => {
     const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
-    });
+    if (searchQuery) params.set("search", searchQuery);
+    if (houseType !== "All Types") params.set("type", houseType);
+    if (minPrice) params.set("minPrice", minPrice);
+    if (maxPrice) params.set("maxPrice", maxPrice);
+    if (beds !== "Any") params.set("beds", beds);
+    if (country) params.set("country", country);
+    if (sortBy !== "Most Recent") params.set("sortBy", sortBy);
+
     router.push(`/all-listings?${params.toString()}`);
   };
 
@@ -97,7 +106,20 @@ function AllListingsContent() {
       if (minPrice) params.set("minPrice", minPrice);
       if (maxPrice) params.set("maxPrice", maxPrice);
       if (beds !== "Any") params.set("beds", beds);
+      if (country) params.set("country", country);
       params.set("page", currentPage.toString());
+
+      // Add sorting
+      if (sortBy === "Price Low to High") {
+        params.set("sort", "price");
+        params.set("order", "asc");
+      } else if (sortBy === "Price High to Low") {
+        params.set("sort", "price");
+        params.set("order", "desc");
+      } else if (sortBy === "Most Popular") {
+        params.set("sort", "views");
+        params.set("order", "desc");
+      }
 
       const response = await fetch(
         `${
@@ -117,20 +139,28 @@ function AllListingsContent() {
     }
   };
 
+  // Fetch properties when filters or page changes
   useEffect(() => {
     fetchProperties();
-  }, [searchQuery, houseType, minPrice, maxPrice, beds, currentPage]);
+  }, [
+    searchQuery,
+    houseType,
+    minPrice,
+    maxPrice,
+    beds,
+    country,
+    sortBy,
+    currentPage,
+  ]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    updateURL();
+  }, [searchQuery, houseType, minPrice, maxPrice, beds, country, sortBy]);
 
   const handleFilterChange = () => {
-    updateURL({
-      search: searchQuery,
-      houseType,
-      minPrice,
-      maxPrice,
-      beds,
-      sortBy,
-    });
     setCurrentPage(1);
+    fetchProperties();
   };
 
   const PropertyCard = ({ property }: { property: Property }) => (
@@ -301,7 +331,13 @@ function AllListingsContent() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 House Type
               </label>
-              <Select value={houseType} onValueChange={setHouseType}>
+              <Select
+                value={houseType}
+                onValueChange={(value) => {
+                  setHouseType(value);
+                  handleFilterChange();
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
@@ -316,6 +352,17 @@ function AllListingsContent() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Country
+              </label>
+              <Input
+                placeholder="Country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Price Min
               </label>
               <Input
@@ -323,6 +370,7 @@ function AllListingsContent() {
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
                 type="number"
+                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
               />
             </div>
             <div>
@@ -334,13 +382,20 @@ function AllListingsContent() {
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
                 type="number"
+                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Beds
               </label>
-              <Select value={beds} onValueChange={setBeds}>
+              <Select
+                value={beds}
+                onValueChange={(value) => {
+                  setBeds(value);
+                  handleFilterChange();
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
@@ -374,7 +429,13 @@ function AllListingsContent() {
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-gray-600">Sort:</span>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => {
+                setSortBy(value);
+                handleFilterChange();
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
