@@ -19,6 +19,7 @@ const navigationItems = [
   { name: "Contact", href: "/contact-us" },
   { name: "About Us", href: "/about-us" },
   { name: "Your properties", href: "/your-posts" },
+  { name: "News", href: "/news" },
 ];
 
 export default function Header() {
