@@ -46,7 +46,9 @@ export default function YourPostsPage() {
         // Get user ID from session/auth - replace with actual implementation
         const userId = "user-id-from-session"; // This should come from your auth system
 
-        const response = await fetch(`/api/v1/properties/user/${userId}`);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/properties/user/${userId}`
+        );
         const data = await response.json();
 
         if (data.success) {
@@ -66,9 +68,12 @@ export default function YourPostsPage() {
     if (!confirm("Are you sure you want to delete this property?")) return;
 
     try {
-      const response = await fetch(`/api/v1/properties/${propertyId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/properties/${propertyId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
         setProperties((prev) => prev.filter((p) => p._id !== propertyId));
@@ -96,77 +101,6 @@ export default function YourPostsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-[#191919] text-white py-4">
-        <div className="container mx-auto px-4 flex items-center justify-between">
-          <div className="text-xl font-bold">Hidden Prop</div>
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="/" className="hover:text-gray-300">
-              Buy
-            </a>
-            <a href="/" className="hover:text-gray-300">
-              Wishlist
-            </a>
-            <a href="/contact" className="hover:text-gray-300">
-              Contact
-            </a>
-            <div className="relative group">
-              <button className="hover:text-gray-300 flex items-center">
-                About Company
-                <svg
-                  className="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-            </div>
-            <a href="/list-property" className="hover:text-gray-300">
-              List your property
-            </a>
-          </nav>
-          <div className="flex items-center space-x-4">
-            <button className="p-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </button>
-            <button className="p-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
