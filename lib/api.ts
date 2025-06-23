@@ -110,6 +110,17 @@ export async function fetchAllNews() {
     }
 }
 
+
+export async function getSingleNews(id: string) {
+    try {
+        const response = await api.get(`/news/${id}`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to fetch news");
+    }
+}
+
+
 export async function createNews(data: any) {
     try {
         const response = await api.post(`/news`, data);
