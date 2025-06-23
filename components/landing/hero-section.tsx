@@ -1,8 +1,10 @@
 "use client";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 export default function HeroSection() {
+
   return (
     <section className="relative h-[650px] flex items-center justify-center">
       {/* Background Image */}

@@ -9,12 +9,12 @@ const api = axios.create({
     baseURL: API_URL,
 });
 
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODRjMDdiNjNhZGU3ZjUzNzhiZTA5MjkiLCJlbWFpbCI6InppaGFkdWxpc2xhbS5iZGNhbGxpbmdAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUwNDEwMjk2LCJleHAiOjE3NTA0OTY2OTZ9.a-274L1uBV67Uex9Oeiv3k4zyd9BIRogg7CI8LdO4iY"
 
 // Add request interceptor to add auth token
 api.interceptors.request.use(
     async (config) => {
-        // const session = await getSession();
+        const session = await getSession()
+        const TOKEN = session?.user?.accessToken
         if (TOKEN) {
             config.headers.Authorization = `Bearer ${TOKEN}`;
         }
@@ -87,5 +87,54 @@ export async function fetchSingleUser(id: string) {
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || "Failed to fetch user details");
+    }
+}
+
+
+
+export async function updateUserProfile(id: string, data: any) {
+    try {
+        const response = await api.patch(`user/profile/update/${id}`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to update user profile");
+    }
+}
+
+export async function fetchAllNews() {
+    try {
+        const response = await api.get(`/news`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to fetch news");
+    }
+}
+
+export async function createNews(data: any) {
+    try {
+        const response = await api.post(`/news`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to create newsletter");
+    }
+}
+
+
+export async function updateNews(id: string, data: any) {
+    try {
+        const response = await api.patch(`/news/${id}`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to update newsletter");
+    }
+}
+
+
+export async function deleteNews(id: string) {
+    try {
+        const response = await api.delete(`/news/${id}`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to delete newsletter");
     }
 }

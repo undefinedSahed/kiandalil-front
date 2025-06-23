@@ -12,6 +12,7 @@ import {
     Home,
     Verified,
     Newspaper,
+    PaperclipIcon,
 } from "lucide-react";
 
 import {
@@ -46,9 +47,14 @@ const menuItems = [
         icon: Verified,
     },
     {
-        title: "News Posting",
-        url: "/dashboard/news-posting",
+        title: "News",
+        url: "/dashboard/news",
         icon: Newspaper,
+    },
+    {
+        title: "Newsletter",
+        url: "/dashboard/newsletter",
+        icon: PaperclipIcon,
     },
     {
         title: "Settings",

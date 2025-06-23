@@ -72,7 +72,7 @@ export default function PropertiesPage() {
                                             alt={property.title}
                                             width={50}
                                             height={50}
-                                            className="rounded-lg object-cover"
+                                            className="object-cover"
                                         />
                                     </TableCell>
                                     <TableCell>
