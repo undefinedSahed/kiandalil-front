@@ -100,3 +100,15 @@ export async function updateUserProfile(id: string, data: any) {
         throw new Error(error.response?.data?.message || "Failed to update user profile");
     }
 }
+
+
+
+
+export async function createNews(data: any) {
+    try {
+        const response = await api.post(`/news`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to create newsletter");
+    }
+}
