@@ -16,7 +16,7 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-6 ">
+      <div className="relative z-10 text-center text-white container px-6 ">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -32,7 +32,8 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-lg md:text-xl mb-8 text-gray-200"
         >
-          Explore Rentals
+          From cozy apartments to spacious homes, we make renting simple and
+          secure.
         </motion.p>
 
         {/* Search Section */}
@@ -54,7 +55,7 @@ export default function HeroSection() {
         </motion.div> */}
       </div>
       <motion.div
-        className="absolute bottom-0  transform -translate-x-1/2 mb-[-30px] w-full px-4"
+        className="absolute bottom-0  transform -translate-x-1/2 mb-[-30px] max-w-[845px] w-full px-4"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.6 }}
