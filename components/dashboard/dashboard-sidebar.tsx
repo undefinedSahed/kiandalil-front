@@ -47,8 +47,8 @@ const menuItems = [
         icon: Verified,
     },
     {
-        title: "News Posting",
-        url: "/dashboard/news-posting",
+        title: "News",
+        url: "/dashboard/news",
         icon: Newspaper,
     },
     {

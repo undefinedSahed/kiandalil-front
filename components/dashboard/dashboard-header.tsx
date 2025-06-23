@@ -20,19 +20,15 @@ export function DashboardHeader() {
 
 
     const { data: userDetails, isLoading, isError } = useQuery({
-        queryKey: ["userDetails", "684c07b63ade7f5378be0929"],
+        queryKey: ["userDetails", session?.user?.id],
         queryFn: ({ queryKey }) => fetchSingleUser(queryKey[1] as string),
         select: (data) => data.data,
         staleTime: 5 * 60 * 1000,
     });
 
-    console.log(userDetails)
-
     const handleLogout = async () => {
         await signOut({ callbackUrl: "/" });
     };
-
-    console.log(session)
 
     return (
         <header className="flex w-full items-center justify-between border-b border-[#222] bg-[#131313] p-4 backdrop-blur-xl">

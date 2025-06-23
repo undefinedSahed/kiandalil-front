@@ -131,7 +131,7 @@ export default function NewsPage() {
                     className="w-full bg-black text-white hover:bg-gray-800 mt-0"
                     disabled={loading}
                 >
-                    {loading ? "Sending..." : "Post News"}
+                    {loading ? "Sending..." : "Send News"}
                 </Button>
             </form>
         </div>

@@ -101,8 +101,14 @@ export async function updateUserProfile(id: string, data: any) {
     }
 }
 
-
-
+export async function fetchAllNews() {
+    try {
+        const response = await api.get(`/news`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to fetch news");
+    }
+}
 
 export async function createNews(data: any) {
     try {
@@ -110,5 +116,25 @@ export async function createNews(data: any) {
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || "Failed to create newsletter");
+    }
+}
+
+
+export async function updateNews(id: string, data: any) {
+    try {
+        const response = await api.patch(`/news/${id}`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to update newsletter");
+    }
+}
+
+
+export async function deleteNews(id: string) {
+    try {
+        const response = await api.delete(`/news/${id}`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to delete newsletter");
     }
 }

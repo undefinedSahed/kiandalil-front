@@ -23,6 +23,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 
 const profileFormSchema = z.object({
     firstName: z.string().min(1, {
@@ -46,6 +47,7 @@ export default function SettingsPage() {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
     const queryClient = useQueryClient();
+    const {data: session} = useSession();
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
@@ -67,7 +69,7 @@ export default function SettingsPage() {
     });
 
     const { data: userDetails, isLoading, isError } = useQuery({
-        queryKey: ["userDetails", "684c07b63ade7f5378be0929"],
+        queryKey: ["userDetails", session?.user?.id],
         queryFn: ({ queryKey }) => fetchSingleUser(queryKey[1] as string),
         select: (data) => data.data,
         staleTime: 5 * 60 * 1000,
