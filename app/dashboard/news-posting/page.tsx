@@ -185,13 +185,11 @@ export default function NewsForm({ initialData, onSubmitSuccess }: NewsFormProps
         formData.append("subTitle", values.subTitle)
         formData.append("description", values.description)
 
-        if (selectedFile) {
+        if (selectedFile && initialData?._id) {
             formData.append("images", selectedFile) // Use selectedFile directly
-        } else if (values.existingImage && !selectedFile) {
-            // If there's an existing image and no new file selected, send it.
-            // This case might not always be needed if the backend handles missing image gracefully on update.
-            // But good to be explicit if the backend expects image on every update.
-            // For now, we'll assume backend handles if 'image' is not present.
+        }
+        if (selectedFile && !initialData?._id) {
+            formData.append("image", selectedFile) // Use selectedFile directly
         }
 
 
@@ -299,7 +297,7 @@ export default function NewsForm({ initialData, onSubmitSuccess }: NewsFormProps
                                                     <img
                                                         src={imagePreview || form.watch("existingImage") || "/placeholder.svg"}
                                                         alt="Preview"
-                                                        className="w-full h-48 object-cover rounded-lg border"
+                                                        className="w-full h-[400px] object-cover rounded-lg border"
                                                     />
                                                     <button
                                                         type="button"
