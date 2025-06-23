@@ -1,90 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square, Heart } from "lucide-react"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import { useQuery } from "@tanstack/react-query"
+import { fetchApprovedProperties } from "@/lib/api"
+import { Property } from "@/app/dashboard/page"
+import Link from "next/link"
 
-const properties = [
-  {
-    id: 1,
-    title: "Modern Apartment",
-    location: "New York, NY",
-    price: 2500,
-    period: "/month",
-    image: "/placeholder.svg?height=300&width=400",
-    beds: 2,
-    baths: 2,
-    sqft: 1200,
-    tag: "Featured",
-  },
-  {
-    id: 2,
-    title: "Luxury Condo",
-    location: "Los Angeles, CA",
-    price: 3200,
-    period: "/month",
-    image: "/placeholder.svg?height=300&width=400",
-    beds: 3,
-    baths: 2,
-    sqft: 1500,
-    tag: "New",
-  },
-  {
-    id: 3,
-    title: "Downtown Loft",
-    location: "Chicago, IL",
-    price: 1800,
-    period: "/month",
-    image: "/placeholder.svg?height=300&width=400",
-    beds: 1,
-    baths: 1,
-    sqft: 900,
-    tag: "Popular",
-  },
-  {
-    id: 4,
-    title: "Beachfront Villa",
-    location: "Miami, FL",
-    price: 4500,
-    period: "/month",
-    image: "/placeholder.svg?height=300&width=400",
-    beds: 4,
-    baths: 3,
-    sqft: 2200,
-    tag: "Luxury",
-  },
-  {
-    id: 5,
-    title: "City View Studio",
-    location: "San Francisco, CA",
-    price: 2800,
-    period: "/month",
-    image: "/placeholder.svg?height=300&width=400",
-    beds: 1,
-    baths: 1,
-    sqft: 800,
-    tag: "Featured",
-  },
-  {
-    id: 6,
-    title: "Garden Apartment",
-    location: "Seattle, WA",
-    price: 2100,
-    period: "/month",
-    image: "/placeholder.svg?height=300&width=400",
-    beds: 2,
-    baths: 1,
-    sqft: 1100,
-    tag: "New",
-  },
-]
+const categories = ["All", "Apartment", "Villa", "House"]
 
-const categories = ["All", "Recommended", "Apartment", "Villa", "House"]
-
-{
-  /* Property Card Component */
-}
 const PropertyCard = ({ property, index }: { property: any; index: number }) => (
   <motion.div
     className="relative bg-white rounded-2xl overflow-hidden shadow-lg group cursor-pointer"
@@ -97,7 +24,7 @@ const PropertyCard = ({ property, index }: { property: any; index: number }) => 
     {/* Property Image */}
     <div className="relative h-64">
       <Image
-        src={property.image || "/placeholder.svg"}
+        src={property.images[0]}
         alt={property.title}
         fill
         className="object-cover transition-transform duration-300 group-hover:scale-110"
@@ -119,26 +46,26 @@ const PropertyCard = ({ property, index }: { property: any; index: number }) => 
 
         <div className="flex items-center text-white/90 mb-3">
           <MapPin className="w-4 h-4 mr-1" />
-          <span className="text-sm">{property.location}</span>
+          <span className="text-sm">{property.address}, {property.city}</span>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-white/90 text-sm">
             <div className="flex items-center">
               <Bed className="w-4 h-4 mr-1" />
-              <span>{property.beds}</span>
+              <span>{property.quality.bed}</span>
             </div>
             <div className="flex items-center">
               <Bath className="w-4 h-4 mr-1" />
-              <span>{property.baths}</span>
+              <span>{property.quality.bath}</span>
             </div>
             <div className="flex items-center">
               <Square className="w-4 h-4 mr-1" />
-              <span>{property.sqft} sq ft</span>
+              <span>{property.quality.sqrFt} sq ft</span>
             </div>
           </div>
 
-          <div className="text-white font-bold text-lg">${property.price.toLocaleString()}</div>
+          <div className="text-white font-bold text-lg">${property?.price?.toLocaleString?.() || "—"}</div>
         </div>
       </div>
     </div>
@@ -146,6 +73,19 @@ const PropertyCard = ({ property, index }: { property: any; index: number }) => 
 )
 
 export default function FeaturedProperties() {
+  const [selectedCategory, setSelectedCategory] = useState("All")
+
+  const { data: allProperties } = useQuery({
+    queryKey: ["properties"],
+    queryFn: fetchApprovedProperties,
+    select: (data) => data?.data
+  });
+
+  const filteredProperties = allProperties?.filter((property: Property) => {
+    if (selectedCategory === "All") return true;
+    return property.type?.toLowerCase() === selectedCategory.toLowerCase();
+  });
+
   return (
     <section className="py-20 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -163,11 +103,12 @@ export default function FeaturedProperties() {
 
           {/* Category Filters */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
-            {categories.map((category, index) => (
+            {categories.map((category) => (
               <Button
                 key={category}
-                variant={index === 0 ? "default" : "outline"}
-                className={index === 0 ? "bg-[#191919] hover:bg-[#2a2a2a]" : ""}
+                variant={selectedCategory === category ? "default" : "outline"}
+                className={selectedCategory === category ? "bg-[#191919] hover:bg-[#2a2a2a] text-white" : ""}
+                onClick={() => setSelectedCategory(category)}
               >
                 {category}
               </Button>
@@ -176,9 +117,13 @@ export default function FeaturedProperties() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {properties.map((property, index) => (
-            <PropertyCard property={property} index={index} key={property.id} />
-          ))}
+          {filteredProperties?.length > 0 ? (
+            filteredProperties.map((property: Property, index: number) => (
+              <PropertyCard property={property} index={index} key={property._id} />
+            ))
+          ) : (
+            <p className="text-center col-span-3 text-gray-500">No properties found for this category.</p>
+          )}
         </div>
 
         <motion.div
@@ -188,9 +133,11 @@ export default function FeaturedProperties() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <Button className="bg-[#191919] hover:bg-[#2a2a2a] text-white px-8 py-3 rounded-full">
-            View All Properties
-          </Button>
+          <Link href="/all-listings">
+            <Button className="bg-[#191919] hover:bg-[#2a2a2a] text-white px-8 py-3 rounded-full">
+              View All Properties
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </section>
