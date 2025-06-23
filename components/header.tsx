@@ -28,12 +28,12 @@ const navigationItems = [
   { name: "List of properties", href: "#" },
 ];
 
-export default function Header() {  
+export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for hover dropdown
   const { data: session, status } = useSession(); // Get session data and status
 
-  return ( 
+  return (
     <header className="bg-[#191919] text-white py-2 px-6 relative z-50">
       <div className="container flex items-center justify-between">
         <Link href="/" className="text-xl text-center font-bold">
