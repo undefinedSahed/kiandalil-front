@@ -53,9 +53,7 @@ export default function Header() {
           {status === "authenticated" ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white">
-                  <UserCircle className="h-6 w-6" />
-                </Button>
+                  <UserCircle className="h-8 w-8" size={24}/>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-[#191919] text-white border-gray-700">
                 {session?.user?.name && (
