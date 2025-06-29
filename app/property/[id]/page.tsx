@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 interface Property {
   _id: string;
@@ -63,6 +64,9 @@ export default function PropertyDetailsPage() {
   >([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
+  const session= useSession();
+  const number=session
+  console.log(number,"number")
 
   useEffect(() => {
     const fetchProperty = async () => {
