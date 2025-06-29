@@ -90,13 +90,13 @@ export default function AboutUsPage() {
             viewport={{ once: true }}
             className="relative"
           >
-            <div className="rounded-2xl overflow-hidden">
+            <div className=" overflow-hidden">
               <Image
-                src="/placeholder.svg?height=600&width=500"
+                src="/about.jpg"
                 alt="Modern apartment building"
-                width={500}
-                height={600}
-                className="w-full h-auto object-cover"
+                width={1000}
+                height={1000}
+                className="w-[516px] h-[570px] rounded-lg object-cover"
               />
             </div>
           </motion.div>
