@@ -68,68 +68,71 @@ interface WishlistItem {
   };
 }
 
-const { data: session } = useSession()
-
-const token = session?.user?.accessToken
-// API functions
-const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/my-wishlist`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch wishlist");
-  }
-
-  return response.json();
-};
-
-const addToWishlist = async (propertyId: string) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/add-wishlist`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ propertyId }),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to add to wishlist");
-  }
-
-  return response.json();
-};
-
-const removeFromWishlist = async (wishlistId: string) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/wishlist/${wishlistId}`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to remove from wishlist");
-  }
-
-  return response.json();
-};
 
 function AllListingsContent() {
+
+
+  const { data: session } = useSession()
+
+  const token = session?.user?.accessToken
+  // API functions
+  const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/my-wishlist`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch wishlist");
+    }
+
+    return response.json();
+  };
+
+  const addToWishlist = async (propertyId: string) => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/add-wishlist`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ propertyId }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to add to wishlist");
+    }
+
+    return response.json();
+  };
+
+  const removeFromWishlist = async (wishlistId: string) => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/wishlist/${wishlistId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to remove from wishlist");
+    }
+
+    return response.json();
+  };
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
