@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -25,6 +27,7 @@ import {
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Property {
   _id: string;
@@ -56,13 +59,86 @@ interface Property {
   createdAt: string;
 }
 
+interface WishlistItem {
+  _id: string;
+  propertyId: {
+    _id: string;
+    [key: string]: any;
+  };
+}
+
+// API functions
+const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
+  const token = localStorage.getItem("token"); // Adjust based on your auth implementation
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/my-wishlist`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch wishlist");
+  }
+
+  return response.json();
+};
+
+const addToWishlist = async (propertyId: string) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/add-wishlist`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ propertyId }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to add to wishlist");
+  }
+
+  return response.json();
+};
+
+const removeFromWishlist = async (wishlistId: string) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/wishlist/${wishlistId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to remove from wishlist");
+  }
+
+  return response.json();
+};
+
 function AllListingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [cities, setCities] = useState<string[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
 
   // Initialize filters from URL params
   const [filters, setFilters] = useState({
@@ -76,11 +152,44 @@ function AllListingsContent() {
     sortBy: searchParams.get("sortBy") || "Most Recent",
   });
 
-  // Add this state for cities
-  const [cities, setCities] = useState<string[]>([]);
-  const [citiesLoading, setCitiesLoading] = useState(true);
+  // Fetch wishlist using TanStack Query
+  const { data: wishlistData } = useQuery({
+    queryKey: ["wishlist"],
+    queryFn: fetchWishlist,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
+  });
 
-  // Add this function to fetch cities
+  // Create wishlist lookup for better performance
+  const wishlistMap = new Map();
+  wishlistData?.data?.forEach((item: WishlistItem) => {
+    wishlistMap.set(item.propertyId._id, item._id);
+  });
+
+  // Wishlist mutations
+  const { mutate: addToWishlistMutation } = useMutation({
+    mutationFn: addToWishlist,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success("Added to wishlist");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to add to wishlist");
+    },
+  });
+
+  const { mutate: removeFromWishlistMutation } = useMutation({
+    mutationFn: removeFromWishlist,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success("Removed from wishlist");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to remove from wishlist");
+    },
+  });
+
+  // Fetch cities
   const fetchCities = useCallback(async () => {
     setCitiesLoading(true);
     try {
@@ -99,7 +208,7 @@ function AllListingsContent() {
     }
   }, []);
 
-  // Debounced search function
+  // Debounce function
   const debounce = (func: Function, wait: number) => {
     let timeout: NodeJS.Timeout;
     return function executedFunction(...args: any[]) {
@@ -115,7 +224,6 @@ function AllListingsContent() {
   // Update URL parameters
   const updateURL = useCallback((newFilters: typeof filters) => {
     const params = new URLSearchParams();
-
     if (newFilters.search) params.set("search", newFilters.search);
     if (newFilters.type !== "All Types") params.set("type", newFilters.type);
     if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice);
@@ -138,7 +246,6 @@ function AllListingsContent() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-
         if (filtersToUse.search) params.set("search", filtersToUse.search);
         if (filtersToUse.type !== "All Types")
           params.set("type", filtersToUse.type);
@@ -149,7 +256,6 @@ function AllListingsContent() {
         if (filtersToUse.beds !== "Any") params.set("beds", filtersToUse.beds);
         if (filtersToUse.country) params.set("country", filtersToUse.country);
         if (filtersToUse.city) params.set("city", filtersToUse.city);
-
         params.set("page", page.toString());
 
         // Add sorting
@@ -220,141 +326,171 @@ function AllListingsContent() {
     fetchProperties(filters, newPage);
   };
 
+  // Handle wishlist toggle
+  const handleWishlistToggle = (propertyId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const wishlistId = wishlistMap.get(propertyId);
+    if (wishlistId) {
+      removeFromWishlistMutation(wishlistId);
+    } else {
+      addToWishlistMutation(propertyId);
+    }
+  };
+
   // Initial load
   useEffect(() => {
     fetchProperties(filters, currentPage);
-    fetchCities(); // Add this line
+    fetchCities();
   }, []); // Only run once on mount
 
-  const PropertyCard = ({ property }: { property: Property }) => (
-    <motion.div
-      className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
-      onClick={() => router.push(`/property/${property._id}`)}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-        {/* Property Images */}
-        <div className="relative h-64 md:h-48">
-          <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-lg text-sm font-medium z-10">
-            {property.images.length}
-          </div>
-          <div className="grid grid-cols-2 gap-1 h-full">
-            <div className="relative">
-              <Image
-                src={
-                  property.images[0] || "/placeholder.svg?height=200&width=300"
-                }
-                alt={property.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="grid grid-rows-2 gap-1">
-              <div className="relative">
-                <Image
-                  src={
-                    property.images[1] ||
-                    "/placeholder.svg?height=100&width=150"
-                  }
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="relative">
-                <Image
-                  src={
-                    property.images[2] ||
-                    "/placeholder.svg?height=100&width=150"
-                  }
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+  const PropertyCard = ({ property }: { property: Property }) => {
+    const isInWishlist = wishlistMap.has(property._id);
 
-        {/* Property Details */}
-        <div className="md:col-span-2 p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-2xl font-bold text-[#191919] mb-2">
-                  ${property.price?.toLocaleString() || "521,102"}
-                </h3>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                  {property?.title}
-                </h4>
-                <div className="flex items-center text-gray-600 mb-4">
-                  <MapPin className="w-4 h-4 mr-1" />
+    return (
+      <motion.div
+        className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        onClick={() => router.push(`/property/${property._id}`)}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+          {/* Property Images */}
+          <div className="relative h-64 md:h-48">
+            <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-lg text-sm font-medium z-10">
+              {property.images.length}
+            </div>
+            <div className="grid grid-cols-2 gap-1 h-full">
+              <div className="relative">
+                <Image
+                  src={
+                    property.images[0] ||
+                    "/placeholder.svg?height=200&width=300"
+                  }
+                  alt={property.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="grid grid-rows-2 gap-1">
+                <div className="relative">
+                  <Image
+                    src={
+                      property.images[1] ||
+                      "/placeholder.svg?height=100&width=150"
+                    }
+                    alt={property.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="relative">
+                  <Image
+                    src={
+                      property.images[2] ||
+                      "/placeholder.svg?height=100&width=150"
+                    }
+                    alt={property.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Property Details */}
+          <div className="md:col-span-2 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-[#191919] mb-2">
+                    ${property.price?.toLocaleString() || "521,102"}
+                  </h3>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                    {property?.title}
+                  </h4>
+                  <div className="flex items-center text-gray-600 mb-4">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    <span className="text-sm">
+                      {property.city && `${property.city}, `}
+                      {property.address}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2"
+                  onClick={(e) => handleWishlistToggle(property._id, e)}
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${
+                      isInWishlist
+                        ? "text-red-500 fill-red-500"
+                        : "text-gray-400 hover:text-red-400"
+                    }`}
+                  />
+                </Button>
+              </div>
+              <div className="flex items-center space-x-4 text-gray-600 mb-6">
+                <span className="text-sm font-medium">{property.type}</span>
+                <div className="flex items-center">
+                  <Bed className="w-4 h-4 mr-1" />
+                  <span className="text-sm">Bed {property.quality.bed}</span>
+                </div>
+                <div className="flex items-center">
+                  <Bath className="w-4 h-4 mr-1" />
+                  <span className="text-sm">Bath {property.quality.bath}</span>
+                </div>
+                <div className="flex items-center">
+                  <Square className="w-4 h-4 mr-1" />
                   <span className="text-sm">
-                    {property.city && `${property.city}, `}
-                    {property.address}
+                    {property.quality.sqrFt} sq ft
                   </span>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="p-2">
-                <Heart className="w-5 h-5 text-gray-400" />
-              </Button>
             </div>
-            <div className="flex items-center space-x-4 text-gray-600 mb-6">
-              <span className="text-sm font-medium">{property.type}</span>
-              <div className="flex items-center">
-                <Bed className="w-4 h-4 mr-1" />
-                <span className="text-sm">Bed {property.quality.bed}</span>
-              </div>
-              <div className="flex items-center">
-                <Bath className="w-4 h-4 mr-1" />
-                <span className="text-sm">Bath {property.quality.bath}</span>
-              </div>
-              <div className="flex items-center">
-                <Square className="w-4 h-4 mr-1" />
-                <span className="text-sm">{property.quality.sqrFt} sq ft</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Agent Contact */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium">
-                  {property.userId.name.charAt(0)}
+            {/* Agent Contact */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium">
+                    {property.userId.name.charAt(0)}
+                  </span>
+                </div>
+                <span className="font-medium text-gray-800">
+                  {property.userId.name}
                 </span>
               </div>
-              <span className="font-medium text-gray-800">
-                {property.userId.name}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-1 bg-transparent"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Phone className="w-4 h-4" />
-                <span>Call</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-1 bg-transparent"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>WhatsApp</span>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-1 bg-transparent"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>Call</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-1 bg-transparent"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>WhatsApp</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </motion.div>
-  );
+      </motion.div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -393,7 +529,6 @@ function AllListingsContent() {
                 onChange={(e) => handleFilterChange("search", e.target.value)}
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 House Type
@@ -414,7 +549,6 @@ function AllListingsContent() {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Country
@@ -425,7 +559,6 @@ function AllListingsContent() {
                 onChange={(e) => handleFilterChange("country", e.target.value)}
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 City
@@ -457,7 +590,6 @@ function AllListingsContent() {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Min Price
@@ -469,7 +601,6 @@ function AllListingsContent() {
                 type="number"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Max Price
@@ -481,7 +612,6 @@ function AllListingsContent() {
                 type="number"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Beds
@@ -513,8 +643,7 @@ function AllListingsContent() {
               <Search className="w-4 h-4 mr-2" />
               Search
             </Button>
-
-            <div className="flex items-center space-x-4">
+            {/* <div className="flex items-center space-x-4">
               <span className="text-gray-600">Sort:</span>
               <Select
                 value={filters.sortBy}
@@ -534,7 +663,7 @@ function AllListingsContent() {
                   <SelectItem value="Most Popular">Most Popular</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
         </div>
 

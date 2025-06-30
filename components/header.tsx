@@ -17,7 +17,7 @@ import { useSession, signOut } from "next-auth/react";
 // Base navigation items that are always shown
 const baseNavigationItems = [
   { name: "Listings", href: "/all-listings" },
-  { name: "Wishlist", href: "#" },
+  { name: "Wishlist", href: "/wishlist" },
   { name: "Contact", href: "/contact-us" },
   { name: "About Us", href: "/about-us" },
   { name: "News", href: "/news" },

@@ -51,6 +51,8 @@ const propertySchema = z.object({
   bath: z.string().min(1, "Number of baths is required"),
   sqrFt: z.string().min(1, "Square footage is required"),
   offmarket: z.boolean().default(false),
+  whatsappNum: z.number().nullable().default(null),
+  phoneNum: z.string().min(1, "Phone number is required"),
 });
 
 type PropertyFormValues = z.infer<typeof propertySchema>;
@@ -96,6 +98,8 @@ export default function ListPropertyPage() {
       sqrFt: "",
       price: "",
       offmarket: false,
+      whatsappNum: null,
+      phoneNum: "",
     },
   });
 
@@ -191,6 +195,8 @@ export default function ListPropertyPage() {
       formData.append("zipCode", data.zipCode);
       formData.append("address", data.address);
       formData.append("offmarket", data.offmarket.toString());
+      formData.append("whatsappNum", data.whatsappNum?.toString() || "");
+      formData.append("phoneNum", data.phoneNum);
 
       // Add quality object as JSON string
       const quality = {
@@ -304,20 +310,6 @@ export default function ListPropertyPage() {
                     )}
                   />
 
-                  {/* <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Own Property" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
-
                   <FormField
                     control={form.control}
                     name="description"
@@ -335,6 +327,50 @@ export default function ListPropertyPage() {
                       </FormItem>
                     )}
                   />
+
+                  {/* New Contact Information Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="phoneNum"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter phone number"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="whatsappNum"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>WhatsApp Number (optional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter WhatsApp number"
+                              type="number"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                field.onChange(
+                                  value === "" ? null : Number(value)
+                                );
+                              }}
+                              value={field.value === null ? "" : field.value}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 {/* Features and Property Details */}

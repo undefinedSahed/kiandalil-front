@@ -6,71 +6,106 @@ import { MapPin, Bed, Bath, Square, Heart } from "lucide-react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
-import { fetchApprovedProperties } from "@/lib/api"
+import { addToWishlist, fetchApprovedProperties } from "@/lib/api"
 import { Property } from "@/app/dashboard/page"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 const categories = ["All", "Apartment", "Villa", "House"]
 
-const PropertyCard = ({ property, index }: { property: any; index: number }) => (
-  <motion.div
-    className="relative bg-white rounded-2xl overflow-hidden shadow-lg group cursor-pointer"
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.6 }}
-    viewport={{ once: true }}
-    whileHover={{ y: -5 }}
-  >
-    {/* Property Image */}
-    <div className="relative h-64">
-      <Image
-        src={property.images[0]}
-        alt={property.title}
-        fill
-        className="object-cover transition-transform duration-300 group-hover:scale-110"
-      />
+export const PropertyCard = ({ property, index }: { property: any; index: number }) => {
+  const router = useRouter()
+  const [adding, setAdding] = useState(false)
 
-      {/* Badges */}
-      <div className="absolute top-4 left-4">
-        <span className="bg-[#191919] text-white px-3 py-1 rounded-full text-sm font-medium">For Sale</span>
-      </div>
+  const handleAddToWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      setAdding(true)
+      const res = await addToWishlist(property._id)
 
-      {/* Heart Icon */}
-      <button className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors">
-        <Heart className="w-5 h-5 text-white" />
-      </button>
+      if (res.success) {
+        toast.success(res.message)
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.message)
+    } finally {
+      setAdding(false)
+    }
+  }
 
-      {/* Property Info Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-        <h3 className="text-white text-xl font-semibold mb-2">{property.title}</h3>
+  return (
+    <motion.div
+      className="relative bg-white rounded-2xl overflow-hidden shadow-lg group"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1, duration: 0.6 }}
+      viewport={{ once: true }}
+      whileHover={{ y: -5 }}
+    >
+      <a href={`/property/${property._id}`} className="block">
+        {/* Property Image */}
+        <div className="relative h-64">
+          <Image
+            src={property.images[0]}
+            alt={property.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-110"
+          />
 
-        <div className="flex items-center text-white/90 mb-3">
-          <MapPin className="w-4 h-4 mr-1" />
-          <span className="text-sm">{property.address}, {property.city}</span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 text-white/90 text-sm">
-            <div className="flex items-center">
-              <Bed className="w-4 h-4 mr-1" />
-              <span>{property.quality.bed}</span>
-            </div>
-            <div className="flex items-center">
-              <Bath className="w-4 h-4 mr-1" />
-              <span>{property.quality.bath}</span>
-            </div>
-            <div className="flex items-center">
-              <Square className="w-4 h-4 mr-1" />
-              <span>{property.quality.sqrFt} sq ft</span>
-            </div>
+          {/* Badges */}
+          <div className="absolute top-4 left-4">
+            <span className="bg-[#191919] text-white px-3 py-1 rounded-full text-sm font-medium">For Sale</span>
           </div>
 
-          <div className="text-white font-bold text-lg">${property?.price?.toLocaleString?.() || "—"}</div>
+          {/* Heart Icon */}
+          <button
+            onClick={handleAddToWishlist}
+            className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors"
+            disabled={adding}
+          >
+            <Heart className="w-5 h-5 text-white" />
+          </button>
+
+          {/* Property Info Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+            <h3 className="text-white text-xl font-semibold mb-2">{property.title}</h3>
+
+            <div className="flex items-center text-white/90 mb-3">
+              <MapPin className="w-4 h-4 mr-1" />
+              <span className="text-sm">
+                {property.address}, {property.city}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4 text-white/90 text-sm">
+                <div className="flex items-center">
+                  <Bed className="w-4 h-4 mr-1" />
+                  <span>{property.quality.bed}</span>
+                </div>
+                <div className="flex items-center">
+                  <Bath className="w-4 h-4 mr-1" />
+                  <span>{property.quality.bath}</span>
+                </div>
+                <div className="flex items-center">
+                  <Square className="w-4 h-4 mr-1" />
+                  <span>{property.quality.sqrFt} sq ft</span>
+                </div>
+              </div>
+
+              <div className="text-white font-bold text-lg">
+                ${property?.price?.toLocaleString?.() || "—"}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </motion.div>
-)
+      </a>
+    </motion.div>
+  )
+}
 
 export default function FeaturedProperties() {
   const [selectedCategory, setSelectedCategory] = useState("All")
@@ -119,7 +154,7 @@ export default function FeaturedProperties() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {filteredProperties?.length > 0 ? (
             filteredProperties.map((property: Property, index: number) => (
-              <PropertyCard property={property} index={index} key={property._id} />
+              <PropertyCard key={property._id} property={property} index={index} />
             ))
           ) : (
             <p className="text-center col-span-3 text-gray-500">No properties found for this category.</p>
