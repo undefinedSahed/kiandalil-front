@@ -91,7 +91,7 @@ export default function ApprovePage() {
               <div className="flex items-center space-x-4">
                 {/* User Avatar */}
                 <Avatar className="w-12 h-12 flex-shrink-0">
-                  <AvatarImage src="/placeholder-user.jpg" />
+                  <AvatarImage src={property.images[0]} />
                   <AvatarFallback>
                     {property.userId.name.charAt(0)}
                   </AvatarFallback>

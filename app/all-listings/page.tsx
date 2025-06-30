@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import type React from "react";
+
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -26,7 +28,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addToWishlist, fetchWishlist } from "@/lib/api";
 
 interface Property {
   _id: string;
@@ -58,270 +59,438 @@ interface Property {
   createdAt: string;
 }
 
+interface WishlistItem {
+  _id: string;
+  propertyId: {
+    _id: string;
+    [key: string]: any;
+  };
+}
+
+// API functions
+const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
+  const token = localStorage.getItem("token"); // Adjust based on your auth implementation
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/my-wishlist`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch wishlist");
+  }
+
+  return response.json();
+};
+
+const addToWishlist = async (propertyId: string) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/add-wishlist`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ propertyId }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to add to wishlist");
+  }
+
+  return response.json();
+};
+
+const removeFromWishlist = async (wishlistId: string) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/wishlist/${wishlistId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to remove from wishlist");
+  }
+
+  return response.json();
+};
+
 function AllListingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const queryClient = useQueryClient();
+  const [cities, setCities] = useState<string[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
 
   // Initialize filters from URL params
-  const initialSearch = searchParams.get("search") || "";
-  const initialType = searchParams.get("type") || "All Types";
-  const initialMinPrice = searchParams.get("minPrice") || "";
-  const initialMaxPrice = searchParams.get("maxPrice") || "";
-  const initialBeds = searchParams.get("beds") || "Any";
-  const initialCountry = searchParams.get("country") || "";
-  const initialSortBy = searchParams.get("sortBy") || "Most Recent";
-
-  // Filter states
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [houseType, setHouseType] = useState(initialType);
-  const [minPrice, setMinPrice] = useState(initialMinPrice);
-  const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
-  const [beds, setBeds] = useState(initialBeds);
-  const [country, setCountry] = useState(initialCountry);
-  const [sortBy, setSortBy] = useState(initialSortBy);
+  const [filters, setFilters] = useState({
+    search: searchParams.get("search") || "",
+    type: searchParams.get("type") || "All Types",
+    minPrice: searchParams.get("minPrice") || "",
+    maxPrice: searchParams.get("maxPrice") || "",
+    beds: searchParams.get("beds") || "Any",
+    country: searchParams.get("country") || "",
+    city: searchParams.get("city") || "",
+    sortBy: searchParams.get("sortBy") || "Most Recent",
+  });
 
   // Fetch wishlist using TanStack Query
   const { data: wishlistData } = useQuery({
-    queryKey: ['wishlist'],
+    queryKey: ["wishlist"],
     queryFn: fetchWishlist,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
   });
 
-  const wishlist = wishlistData?.data?.map((item: { propertyId: string }) => item.propertyId) || [];
+  // Create wishlist lookup for better performance
+  const wishlistMap = new Map();
+  wishlistData?.data?.forEach((item: WishlistItem) => {
+    wishlistMap.set(item.propertyId._id, item._id);
+  });
 
-  // Add to wishlist mutation
-  const { mutate: toggleWishlist } = useMutation({
+  // Wishlist mutations
+  const { mutate: addToWishlistMutation } = useMutation({
     mutationFn: addToWishlist,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success("Added to wishlist");
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to update wishlist");
-    }
+      toast.error(error.message || "Failed to add to wishlist");
+    },
   });
 
-  // Update URL parameters
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (houseType !== "All Types") params.set("type", houseType);
-    if (minPrice) params.set("minPrice", minPrice);
-    if (maxPrice) params.set("maxPrice", maxPrice);
-    if (beds !== "Any") params.set("beds", beds);
-    if (country) params.set("country", country);
-    if (sortBy !== "Most Recent") params.set("sortBy", sortBy);
+  const { mutate: removeFromWishlistMutation } = useMutation({
+    mutationFn: removeFromWishlist,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success("Removed from wishlist");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to remove from wishlist");
+    },
+  });
 
-    router.push(`/all-listings?${params.toString()}`);
-  };
-
-  // Fetch properties
-  const fetchProperties = async () => {
-    setLoading(true);
+  // Fetch cities
+  const fetchCities = useCallback(async () => {
+    setCitiesLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.set("search", searchQuery);
-      if (houseType !== "All Types") params.set("type", houseType);
-      if (minPrice) params.set("minPrice", minPrice);
-      if (maxPrice) params.set("maxPrice", maxPrice);
-      if (beds !== "Any") params.set("beds", beds);
-      if (country) params.set("country", country);
-      params.set("page", currentPage.toString());
-
-      // Add sorting
-      if (sortBy === "Price Low to High") {
-        params.set("sort", "price");
-        params.set("order", "asc");
-      } else if (sortBy === "Price High to Low") {
-        params.set("sort", "price");
-        params.set("order", "desc");
-      } else if (sortBy === "Most Popular") {
-        params.set("sort", "views");
-        params.set("order", "desc");
-      }
-
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL
-        }/properties/approved/all?${params.toString()}`
+        `${process.env.NEXT_PUBLIC_API_URL}/all/properties/citys`
       );
       const data = await response.json();
-
       if (data.success) {
-        setProperties(data.data);
-        setTotalResults(data.total || data.data.length);
+        setCities(data.data);
       }
     } catch (error) {
-      toast.error("Failed to fetch properties");
+      console.error("Failed to fetch cities:", error);
+      toast.error("Failed to load cities");
     } finally {
-      setLoading(false);
+      setCitiesLoading(false);
+    }
+  }, []);
+
+  // Debounce function
+  const debounce = (func: Function, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: any[]) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
+  // Update URL parameters
+  const updateURL = useCallback((newFilters: typeof filters) => {
+    const params = new URLSearchParams();
+    if (newFilters.search) params.set("search", newFilters.search);
+    if (newFilters.type !== "All Types") params.set("type", newFilters.type);
+    if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice);
+    if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice);
+    if (newFilters.beds !== "Any") params.set("beds", newFilters.beds);
+    if (newFilters.country) params.set("country", newFilters.country);
+    if (newFilters.city) params.set("city", newFilters.city);
+    if (newFilters.sortBy !== "Most Recent")
+      params.set("sortBy", newFilters.sortBy);
+
+    const newUrl = `/all-listings${
+      params.toString() ? `?${params.toString()}` : ""
+    }`;
+    window.history.pushState(null, "", newUrl);
+  }, []);
+
+  // Fetch properties
+  const fetchProperties = useCallback(
+    async (filtersToUse = filters, page = currentPage) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (filtersToUse.search) params.set("search", filtersToUse.search);
+        if (filtersToUse.type !== "All Types")
+          params.set("type", filtersToUse.type);
+        if (filtersToUse.minPrice)
+          params.set("minPrice", filtersToUse.minPrice);
+        if (filtersToUse.maxPrice)
+          params.set("maxPrice", filtersToUse.maxPrice);
+        if (filtersToUse.beds !== "Any") params.set("beds", filtersToUse.beds);
+        if (filtersToUse.country) params.set("country", filtersToUse.country);
+        if (filtersToUse.city) params.set("city", filtersToUse.city);
+        params.set("page", page.toString());
+
+        // Add sorting
+        if (filtersToUse.sortBy === "Price Low to High") {
+          params.set("sort", "price");
+          params.set("order", "asc");
+        } else if (filtersToUse.sortBy === "Price High to Low") {
+          params.set("sort", "price");
+          params.set("order", "desc");
+        } else if (filtersToUse.sortBy === "Most Popular") {
+          params.set("sort", "views");
+          params.set("order", "desc");
+        }
+
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/properties/approved/all?${params.toString()}`
+        );
+
+        const data = await response.json();
+        if (data.success) {
+          setProperties(data.data);
+          setTotalResults(data.total || data.data.length);
+        }
+      } catch (error) {
+        toast.error("Failed to fetch properties");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [filters, currentPage]
+  );
+
+  // Debounced fetch function
+  const debouncedFetch = useCallback(
+    debounce((newFilters: typeof filters) => {
+      fetchProperties(newFilters, 1);
+      setCurrentPage(1);
+    }, 500),
+    [fetchProperties]
+  );
+
+  // Handle filter changes
+  const handleFilterChange = (key: keyof typeof filters, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    updateURL(newFilters);
+
+    // For search input, use debounced fetch, for others fetch immediately
+    if (key === "search") {
+      debouncedFetch(newFilters);
+    } else {
+      fetchProperties(newFilters, 1);
+      setCurrentPage(1);
     }
   };
 
-  // Fetch properties when filters or page changes
-  useEffect(() => {
-    fetchProperties();
-  }, [
-    searchQuery,
-    houseType,
-    minPrice,
-    maxPrice,
-    beds,
-    country,
-    sortBy,
-    currentPage,
-  ]);
-
-  // Update URL when filters change
-  useEffect(() => {
-    updateURL();
-  }, [searchQuery, houseType, minPrice, maxPrice, beds, country, sortBy]);
-
-  const handleFilterChange = () => {
+  // Handle manual search button click
+  const handleSearch = () => {
+    fetchProperties(filters, 1);
     setCurrentPage(1);
-    fetchProperties();
   };
 
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    fetchProperties(filters, newPage);
+  };
+
+  // Handle wishlist toggle
   const handleWishlistToggle = (propertyId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleWishlist(propertyId);
+
+    const wishlistId = wishlistMap.get(propertyId);
+    if (wishlistId) {
+      removeFromWishlistMutation(wishlistId);
+    } else {
+      addToWishlistMutation(propertyId);
+    }
   };
 
-  const PropertyCard = ({ property }: { property: Property }) => (
-    <motion.div
-      className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
-      onClick={() => router.push(`/property/${property._id}`)}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-        {/* Property Images */}
-        <div className="relative h-64 md:h-48">
-          <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-lg text-sm font-medium z-10">
-            {property.images.length}
-          </div>
-          <div className="grid grid-cols-2 gap-1 h-full">
-            <div className="relative">
-              <Image
-                src={
-                  property.images[0] || "/placeholder.svg?height=200&width=300"
-                }
-                alt={property.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="grid grid-rows-2 gap-1">
-              <div className="relative">
-                <Image
-                  src={
-                    property.images[1] ||
-                    "/placeholder.svg?height=100&width=150"
-                  }
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="relative">
-                <Image
-                  src={
-                    property.images[2] ||
-                    "/placeholder.svg?height=100&width=150"
-                  }
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+  // Initial load
+  useEffect(() => {
+    fetchProperties(filters, currentPage);
+    fetchCities();
+  }, []); // Only run once on mount
 
-        {/* Property Details */}
-        <div className="md:col-span-2 p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-2xl font-bold text-[#191919] mb-2">
-                  ${property.price?.toLocaleString() || "521,102"}
-                </h3>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                  {property.quality.bed} Beds | High Quality | Luxury Lifestyle
-                </h4>
-                <div className="flex items-center text-gray-600 mb-4">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  <span className="text-sm">Location: {property.address}</span>
+  const PropertyCard = ({ property }: { property: Property }) => {
+    const isInWishlist = wishlistMap.has(property._id);
+
+    return (
+      <motion.div
+        className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        onClick={() => router.push(`/property/${property._id}`)}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+          {/* Property Images */}
+          <div className="relative h-64 md:h-48">
+            <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-lg text-sm font-medium z-10">
+              {property.images.length}
+            </div>
+            <div className="grid grid-cols-2 gap-1 h-full">
+              <div className="relative">
+                <Image
+                  src={
+                    property.images[0] ||
+                    "/placeholder.svg?height=200&width=300"
+                  }
+                  alt={property.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="grid grid-rows-2 gap-1">
+                <div className="relative">
+                  <Image
+                    src={
+                      property.images[1] ||
+                      "/placeholder.svg?height=100&width=150"
+                    }
+                    alt={property.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="relative">
+                  <Image
+                    src={
+                      property.images[2] ||
+                      "/placeholder.svg?height=100&width=150"
+                    }
+                    alt={property.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-2"
-                onClick={(e) => handleWishlistToggle(property._id, e)}
-              >
-                <Heart
-                  className={`w-5 h-5 ${wishlist.includes(property._id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}`}
-                />
-              </Button>
-            </div>
-
-            <div className="flex items-center space-x-4 text-gray-600 mb-6">
-              <span className="text-sm font-medium">{property.type}</span>
-              <div className="flex items-center">
-                <Bed className="w-4 h-4 mr-1" />
-                <span className="text-sm">Bed {property.quality.bed}</span>
-              </div>
-              <div className="flex items-center">
-                <Bath className="w-4 h-4 mr-1" />
-                <span className="text-sm">Bath {property.quality.bath}</span>
-              </div>
-              <div className="flex items-center">
-                <Square className="w-4 h-4 mr-1" />
-                <span className="text-sm">{property.quality.sqrFt} sq ft</span>
-              </div>
             </div>
           </div>
 
-          {/* Agent Contact */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium">
-                  {property.userId.name.charAt(0)}
+          {/* Property Details */}
+          <div className="md:col-span-2 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-[#191919] mb-2">
+                    ${property.price?.toLocaleString() || "521,102"}
+                  </h3>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                    {property?.title}
+                  </h4>
+                  <div className="flex items-center text-gray-600 mb-4">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    <span className="text-sm">
+                      {property.city && `${property.city}, `}
+                      {property.address}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2"
+                  onClick={(e) => handleWishlistToggle(property._id, e)}
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${
+                      isInWishlist
+                        ? "text-red-500 fill-red-500"
+                        : "text-gray-400 hover:text-red-400"
+                    }`}
+                  />
+                </Button>
+              </div>
+              <div className="flex items-center space-x-4 text-gray-600 mb-6">
+                <span className="text-sm font-medium">{property.type}</span>
+                <div className="flex items-center">
+                  <Bed className="w-4 h-4 mr-1" />
+                  <span className="text-sm">Bed {property.quality.bed}</span>
+                </div>
+                <div className="flex items-center">
+                  <Bath className="w-4 h-4 mr-1" />
+                  <span className="text-sm">Bath {property.quality.bath}</span>
+                </div>
+                <div className="flex items-center">
+                  <Square className="w-4 h-4 mr-1" />
+                  <span className="text-sm">
+                    {property.quality.sqrFt} sq ft
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Agent Contact */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium">
+                    {property.userId.name.charAt(0)}
+                  </span>
+                </div>
+                <span className="font-medium text-gray-800">
+                  {property.userId.name}
                 </span>
               </div>
-              <span className="font-medium text-gray-800">
-                {property.userId.name}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-1"
-              >
-                <Phone className="w-4 h-4" />
-                <span>Call</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-1"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>What's App</span>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-1 bg-transparent"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>Call</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-1 bg-transparent"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>WhatsApp</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </motion.div>
-  );
+      </motion.div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -349,16 +518,15 @@ function AllListingsContent() {
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4 items-end">
+            <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Search
               </label>
               <Input
                 placeholder="Search properties..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
+                value={filters.search}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
               />
             </div>
             <div>
@@ -366,11 +534,8 @@ function AllListingsContent() {
                 House Type
               </label>
               <Select
-                value={houseType}
-                onValueChange={(value) => {
-                  setHouseType(value);
-                  handleFilterChange();
-                }}
+                value={filters.type}
+                onValueChange={(value) => handleFilterChange("type", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Types" />
@@ -390,33 +555,61 @@ function AllListingsContent() {
               </label>
               <Input
                 placeholder="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
+                value={filters.country}
+                onChange={(e) => handleFilterChange("country", e.target.value)}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price Min
+                City
+              </label>
+              <Select
+                value={filters.city}
+                onValueChange={(value) =>
+                  handleFilterChange("city", value === "allCities" ? "" : value)
+                }
+                disabled={citiesLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      citiesLoading ? "Loading cities..." : "All Cities"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="allCities">All Cities</SelectItem>
+                  {cities.map((city) => (
+                    <SelectItem
+                      key={city}
+                      value={city.toLowerCase().replace(/\s+/g, "-")}
+                    >
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Min Price
               </label>
               <Input
                 placeholder="Min Price"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
+                value={filters.minPrice}
+                onChange={(e) => handleFilterChange("minPrice", e.target.value)}
                 type="number"
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price Max
+                Max Price
               </label>
               <Input
                 placeholder="Max Price"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
+                value={filters.maxPrice}
+                onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
                 type="number"
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
               />
             </div>
             <div>
@@ -424,11 +617,8 @@ function AllListingsContent() {
                 Beds
               </label>
               <Select
-                value={beds}
-                onValueChange={(value) => {
-                  setBeds(value);
-                  handleFilterChange();
-                }}
+                value={filters.beds}
+                onValueChange={(value) => handleFilterChange("beds", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Any" />
@@ -443,13 +633,37 @@ function AllListingsContent() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between mt-4">
             <Button
-              onClick={handleFilterChange}
+              onClick={handleSearch}
               className="bg-[#191919] hover:bg-[#2a2a2a] text-white"
             >
               <Search className="w-4 h-4 mr-2" />
               Search
             </Button>
+            {/* <div className="flex items-center space-x-4">
+              <span className="text-gray-600">Sort:</span>
+              <Select
+                value={filters.sortBy}
+                onValueChange={(value) => handleFilterChange("sortBy", value)}
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Most Recent">Most Recent</SelectItem>
+                  <SelectItem value="Price Low to High">
+                    Price Low to High
+                  </SelectItem>
+                  <SelectItem value="Price High to Low">
+                    Price High to Low
+                  </SelectItem>
+                  <SelectItem value="Most Popular">Most Popular</SelectItem>
+                </SelectContent>
+              </Select>
+            </div> */}
           </div>
         </div>
 
@@ -460,30 +674,15 @@ function AllListingsContent() {
             <span className="font-semibold text-[#191919]">
               {totalResults} results
             </span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-600">Sort:</span>
-            <Select
-              value={sortBy}
-              onValueChange={(value) => {
-                setSortBy(value);
-                handleFilterChange();
-              }}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Most Recent">Most Recent</SelectItem>
-                <SelectItem value="Price Low to High">
-                  Price Low to High
-                </SelectItem>
-                <SelectItem value="Price High to Low">
-                  Price High to Low
-                </SelectItem>
-                <SelectItem value="Most Popular">Most Popular</SelectItem>
-              </SelectContent>
-            </Select>
+            {filters.city && (
+              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                in{" "}
+                {cities.find(
+                  (city) =>
+                    city.toLowerCase().replace(/\s+/g, "-") === filters.city
+                ) || filters.city}
+              </span>
+            )}
           </div>
         </div>
 
@@ -506,6 +705,15 @@ function AllListingsContent() {
               </div>
             ))}
           </div>
+        ) : properties.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 text-lg mb-4">
+              No properties found
+            </div>
+            <p className="text-gray-400">
+              Try adjusting your filters to see more results
+            </p>
+          </div>
         ) : (
           <div className="space-y-6">
             {properties.map((property) => (
@@ -515,11 +723,11 @@ function AllListingsContent() {
         )}
 
         {/* Pagination */}
-        {!loading && properties.length > 0 && (
+        {!loading && properties.length > 0 && totalResults > 10 && (
           <div className="flex items-center justify-between mt-12">
             <Button
               variant="outline"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
             >
               Previous
@@ -534,7 +742,7 @@ function AllListingsContent() {
             </div>
             <Button
               variant="outline"
-              onClick={() => setCurrentPage((prev) => prev + 1)}
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= Math.ceil(totalResults / 10)}
             >
               Next
@@ -548,7 +756,13 @@ function AllListingsContent() {
 
 export default function AllListingsPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          Loading...
+        </div>
+      }
+    >
       <AllListingsContent />
     </Suspense>
   );
