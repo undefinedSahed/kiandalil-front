@@ -1,18 +1,36 @@
 "use client";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const router = useRouter();
+
+  // Debounce effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      router.push(`/all-listings?search=${encodeURIComponent(debouncedQuery.trim())}`);
+    }
+  }, [debouncedQuery]);
 
   return (
     <section className="relative h-[650px] flex items-center justify-center">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('/hero.jpg')",
-        }}
+        style={{ backgroundImage: "url('/hero.jpg')" }}
       >
         <div className="absolute inset-0 bg-black/40" />
       </div>
@@ -37,27 +55,11 @@ export default function HeroSection() {
           From cozy apartments to spacious homes, we make renting simple and
           secure.
         </motion.p>
-
-        {/* Search Section */}
-
-        {/* Action Buttons */}
-        {/* <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex justify-center space-x-4 mt-8"
-        >
-          <Button className="bg-[#191919] hover:bg-[#2a2a2a] text-white px-8 py-3 rounded-full">Rent Now</Button>
-          <Button
-            variant="outline"
-            className="border-white text-white hover:bg-white hover:text-[#191919] px-8 py-3 rounded-full"
-          >
-            Explore
-          </Button>
-        </motion.div> */}
       </div>
+
+      {/* Search Box */}
       <motion.div
-        className="absolute bottom-0  transform -translate-x-1/2 mb-[-30px] max-w-[845px] w-full px-4"
+        className="absolute bottom-0 transform -translate-x-1/2 mb-[-30px] max-w-[845px] w-full px-4"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.6 }}
@@ -77,14 +79,22 @@ export default function HeroSection() {
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
+              onChange={(e) => setSearchQuery(e.target.value)}
               type="text"
               placeholder="City, Building or Community"
               className="w-full pl-12 pr-4 py-3 text-gray-600 placeholder-gray-400 bg-transparent focus:outline-none"
             />
           </div>
 
-          {/* Search Button */}
-          <button className="bg-[#191919] p-3 rounded-full hover:bg-gray-800 transition-colors">
+          {/* Optional: Manual Search Button */}
+          <button
+            className="bg-[#191919] p-3 rounded-full hover:bg-gray-800 transition-colors"
+            onClick={() => {
+              if (searchQuery.trim()) {
+                router.push(`/all-listings?search=${encodeURIComponent(searchQuery.trim())}`);
+              }
+            }}
+          >
             <Search className="w-5 h-5 text-white" />
           </button>
         </div>

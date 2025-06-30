@@ -27,7 +27,7 @@ export default function VerifyEmailPage() {
       {/* Left side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <Image
-          src="/images/signup-bg.png"
+          src="/images/login.png"
           alt="Modern apartment interior"
           fill
           className="object-cover"
