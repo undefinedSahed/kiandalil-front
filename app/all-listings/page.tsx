@@ -224,7 +224,7 @@ function AllListingsContent() {
                   ${property.price?.toLocaleString() || "521,102"}
                 </h3>
                 <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                  {property.quality.bed} Beds | High Quality | Luxury Lifestyle
+                  {property?.title}
                 </h4>
                 <div className="flex items-center text-gray-600 mb-4">
                   <MapPin className="w-4 h-4 mr-1" />
@@ -343,7 +343,7 @@ function AllListingsContent() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Types">All Types</SelectItem>
-                  <SelectItem value="apartment">Apartment</SelectItem>
+                  <SelectItem value="Apartment">Apartment</SelectItem>
                   <SelectItem value="house">House</SelectItem>
                   <SelectItem value="duplex">Duplex</SelectItem>
                   <SelectItem value="villa">Villa</SelectItem>

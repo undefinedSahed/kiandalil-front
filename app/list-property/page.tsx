@@ -750,10 +750,13 @@ const propertySchema = z.object({
   bed: z.string().min(1, "Number of beds is required"),
   bath: z.string().min(1, "Number of baths is required"),
   sqrFt: z.string().min(1, "Square footage is required"),
-  price: z.string().min(1, "Price is required").refine((val) => {
-    const num = parseFloat(val);
-    return !isNaN(num) && num > 0;
-  }, "Price must be a positive number"),
+  price: z
+    .string()
+    .min(1, "Price is required")
+    .refine((val) => {
+      const num = parseFloat(val);
+      return !isNaN(num) && num > 0;
+    }, "Price must be a positive number"),
   offmarket: z.boolean().default(false),
 });
 

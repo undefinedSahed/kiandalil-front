@@ -16,7 +16,7 @@ export default async function HomePage() {
       <StatsSection />
       <FeaturedProperties />
       <ServicesSection />
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
       <ContactSection />
       <FAQSection />
       <CTASection />
