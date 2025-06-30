@@ -28,6 +28,17 @@ api.interceptors.request.use(
 
 // Properties API
 
+
+export async function fetchCities() {
+    try {
+        const response = await api.get(`/all/properties/citys`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to fetch cities");
+    }
+}
+
+
 export async function fetchApprovedProperties() {
     try {
         const response = await api.get(`/properties/approved/all`);

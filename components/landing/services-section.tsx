@@ -18,31 +18,31 @@ const services: Service[] = [
     id: 1,
     title: "Rental Management",
     description: "Lorem Ipsum has been the industry's standard dummy",
-    image: "/placeholder.svg?height=320&width=380",
+    image: "/slide1.jpg",
   },
   {
     id: 2,
     title: "Buying & Selling",
     description: "Professional real estate buying and selling services",
-    image: "/placeholder.svg?height=320&width=380",
+    image: "/slide2.jpg",
   },
   {
     id: 3,
     title: "Maintenance & Repair",
     description: "Complete property maintenance and repair solutions",
-    image: "/placeholder.svg?height=320&width=380",
+    image: "/slide3.jpg",
   },
   {
     id: 4,
     title: "Construction",
     description: "Full-scale construction and renovation services",
-    image: "/placeholder.svg?height=320&width=380",
+    image: "/slide4.jpg",
   },
   {
     id: 5,
     title: "Property Inspection",
     description: "Thorough property inspection and assessment services",
-    image: "/placeholder.svg?height=320&width=380",
+    image: "/slide1.jpg",
   },
 ]
 
