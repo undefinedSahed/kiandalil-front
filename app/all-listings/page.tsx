@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -57,6 +56,8 @@ interface Property {
   };
   price?: number;
   offMarket: boolean;
+  whatsappNum?: number | null;
+  phoneNum?: string | null;
   createdAt: string;
 }
 
@@ -68,13 +69,10 @@ interface WishlistItem {
   };
 }
 
-
 function AllListingsContent() {
+  const { data: session } = useSession();
+  const token = session?.user?.accessToken;
 
-
-  const { data: session } = useSession()
-
-  const token = session?.user?.accessToken
   // API functions
   const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
     const response = await fetch(
@@ -86,11 +84,9 @@ function AllListingsContent() {
         },
       }
     );
-
     if (!response.ok) {
       throw new Error("Failed to fetch wishlist");
     }
-
     return response.json();
   };
 
@@ -106,11 +102,9 @@ function AllListingsContent() {
         body: JSON.stringify({ propertyId }),
       }
     );
-
     if (!response.ok) {
       throw new Error("Failed to add to wishlist");
     }
-
     return response.json();
   };
 
@@ -125,11 +119,9 @@ function AllListingsContent() {
         },
       }
     );
-
     if (!response.ok) {
       throw new Error("Failed to remove from wishlist");
     }
-
     return response.json();
   };
 
@@ -193,6 +185,31 @@ function AllListingsContent() {
     },
   });
 
+  // Contact functions
+  const handlePhoneCall = (property: Property, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (property.phoneNum) {
+      window.location.href = `tel:${property.phoneNum}`;
+    } else {
+      toast.error("Phone number not available for this property");
+    }
+  };
+
+  const handleWhatsApp = (property: Property, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (property.whatsappNum) {
+      const message = encodeURIComponent(
+        `Hi ${property.userId.name}, I'm interested in the property: ${
+          property.title
+        } - $${property.price?.toLocaleString()}. Can you provide more details?`
+      );
+      const whatsappUrl = `https://wa.me/${property.whatsappNum}?text=${message}`;
+      window.open(whatsappUrl, "_blank");
+    } else {
+      toast.error("WhatsApp number not available for this property");
+    }
+  };
+
   // Fetch cities
   const fetchCities = useCallback(async () => {
     setCitiesLoading(true);
@@ -238,8 +255,9 @@ function AllListingsContent() {
     if (newFilters.sortBy !== "Most Recent")
       params.set("sortBy", newFilters.sortBy);
 
-    const newUrl = `/all-listings${params.toString() ? `?${params.toString()}` : ""
-      }`;
+    const newUrl = `/all-listings${
+      params.toString() ? `?${params.toString()}` : ""
+    }`;
     window.history.pushState(null, "", newUrl);
   }, []);
 
@@ -274,11 +292,12 @@ function AllListingsContent() {
         }
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL
+          `${
+            process.env.NEXT_PUBLIC_API_URL
           }/properties/approved/all?${params.toString()}`
         );
-
         const data = await response.json();
+
         if (data.success) {
           setProperties(data.data);
           setTotalResults(data.total || data.data.length);
@@ -306,7 +325,6 @@ function AllListingsContent() {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     updateURL(newFilters);
-
     // For search input, use debounced fetch, for others fetch immediately
     if (key === "search") {
       debouncedFetch(newFilters);
@@ -331,7 +349,6 @@ function AllListingsContent() {
   // Handle wishlist toggle
   const handleWishlistToggle = (propertyId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-
     const wishlistId = wishlistMap.get(propertyId);
     if (wishlistId) {
       removeFromWishlistMutation(wishlistId);
@@ -428,10 +445,11 @@ function AllListingsContent() {
                   onClick={(e) => handleWishlistToggle(property._id, e)}
                 >
                   <Heart
-                    className={`w-5 h-5 transition-colors ${isInWishlist
-                      ? "text-red-500 fill-red-500"
-                      : "text-gray-400 hover:text-red-400"
-                      }`}
+                    className={`w-5 h-5 transition-colors ${
+                      isInWishlist
+                        ? "text-red-500 fill-red-500"
+                        : "text-gray-400 hover:text-red-400"
+                    }`}
                   />
                 </Button>
               </div>
@@ -462,28 +480,63 @@ function AllListingsContent() {
                     {property.userId.name.charAt(0)}
                   </span>
                 </div>
-                <span className="font-medium text-gray-800">
-                  {property.userId.name}
-                </span>
+                <div>
+                  <span className="font-medium text-gray-800">
+                    {property.userId.name}
+                  </span>
+                  {/* Contact info display */}
+                  <div className="text-xs text-gray-500 mt-1">
+                    {property.phoneNum && (
+                      <div className="flex items-center">
+                        <Phone className="w-3 h-3 mr-1" />
+                        <span>{property.phoneNum}</span>
+                      </div>
+                    )}
+                    {property.whatsappNum && (
+                      <div className="flex items-center">
+                        <MessageCircle className="w-3 h-3 mr-1" />
+                        <span>{property.whatsappNum}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center space-x-1 bg-transparent"
-                  onClick={(e) => e.stopPropagation()}
+                  className={`flex items-center space-x-1 bg-transparent ${
+                    !property.phoneNum ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  onClick={(e) => handlePhoneCall(property, e)}
+                  disabled={!property.phoneNum}
+                  title={
+                    property.phoneNum
+                      ? `Call ${property.phoneNum}`
+                      : "Phone number not available"
+                  }
                 >
                   <Phone className="w-4 h-4" />
-                  <span>Call</span>
+                  <span>{property.phoneNum ? "Call" : "No Phone"}</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center space-x-1 bg-transparent"
-                  onClick={(e) => e.stopPropagation()}
+                  className={`flex items-center space-x-1 bg-transparent ${
+                    !property.whatsappNum ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  onClick={(e) => handleWhatsApp(property, e)}
+                  disabled={!property.whatsappNum}
+                  title={
+                    property.whatsappNum
+                      ? `WhatsApp ${property.whatsappNum}`
+                      : "WhatsApp number not available"
+                  }
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>WhatsApp</span>
+                  <span>
+                    {property.whatsappNum ? "WhatsApp" : "No WhatsApp"}
+                  </span>
                 </Button>
               </div>
             </div>
@@ -644,27 +697,6 @@ function AllListingsContent() {
               <Search className="w-4 h-4 mr-2" />
               Search
             </Button>
-            {/* <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Sort:</span>
-              <Select
-                value={filters.sortBy}
-                onValueChange={(value) => handleFilterChange("sortBy", value)}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Most Recent">Most Recent</SelectItem>
-                  <SelectItem value="Price Low to High">
-                    Price Low to High
-                  </SelectItem>
-                  <SelectItem value="Price High to Low">
-                    Price High to Low
-                  </SelectItem>
-                  <SelectItem value="Most Popular">Most Popular</SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
           </div>
         </div>
 
