@@ -71,7 +71,7 @@ interface WishlistItem {
 const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
   const token = localStorage.getItem("token"); // Adjust based on your auth implementation
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/my-wishlist`,
+    `${process.env.NEXT_PUBLIC_API_URL}/my-wishlist`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -90,7 +90,7 @@ const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
 const addToWishlist = async (propertyId: string) => {
   const token = localStorage.getItem("token");
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/add-wishlist`,
+    `${process.env.NEXT_PUBLIC_API_URL}/add-wishlist`,
     {
       method: "POST",
       headers: {
