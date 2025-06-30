@@ -51,6 +51,8 @@ interface Property {
   };
   price?: number;
   offMarket: boolean;
+  whatsappNum?: number | null;
+  phoneNum?: string | null;
   createdAt: string;
 }
 
@@ -65,8 +67,6 @@ export default function PropertyDetailsPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const session = useSession();
-  const number = session
-  console.log(number, "number")
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -75,7 +75,6 @@ export default function PropertyDetailsPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/properties/${params.id}`
         );
         const data = await response.json();
-
         if (data.success) {
           setProperty(data.data);
           // Fetch recommended properties
@@ -106,6 +105,28 @@ export default function PropertyDetailsPage() {
       fetchProperty();
     }
   }, [params.id]);
+
+  const handlePhoneCall = () => {
+    if (property?.phoneNum) {
+      window.location.href = `tel:${property.phoneNum}`;
+    } else {
+      toast.error("Phone number not available");
+    }
+  };
+
+  const handleWhatsApp = () => {
+    if (property?.whatsappNum) {
+      const message = encodeURIComponent(
+        `Hi, I'm interested in the property: ${
+          property.title
+        } - $${property.price?.toLocaleString()}`
+      );
+      const whatsappUrl = `https://wa.me/${property.whatsappNum}?text=${message}`;
+      window.open(whatsappUrl, "_blank");
+    } else {
+      toast.error("WhatsApp number not available");
+    }
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -187,8 +208,9 @@ export default function PropertyDetailsPage() {
             {property?.images.map((image, index) => (
               <div
                 key={index}
-                className={`relative w-20 h-16 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden ${index === selectedImageIndex ? "ring-2 ring-blue-500" : ""
-                  }`}
+                className={`relative w-20 h-16 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden ${
+                  index === selectedImageIndex ? "ring-2 ring-blue-500" : ""
+                }`}
                 onClick={() => setSelectedImageIndex(index)}
               >
                 <Image
@@ -292,6 +314,7 @@ export default function PropertyDetailsPage() {
               </div>
             </div>
           </div>
+
           <div className="absolute bottom-4 left-4 flex space-x-2">
             <Button
               variant="secondary"
@@ -398,12 +421,16 @@ export default function PropertyDetailsPage() {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="bg-white rounded-2xl p-6 shadow-sm"
             >
-              <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                  <p className="text-gray-600">{property.address}</p>
-                  <Button variant="outline" className="mt-4">
-                    View on the map
+              <div className="h-64 bg-gray-200 rounded-lg overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387196.07665879064!2d-74.30914977179596!3d40.69667269554806!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sbd!4v1751298686992!5m2!1sen!2sbd"
+                  width="1000"
+                  height="450"
+                  loading="lazy"
+                ></iframe>
+                <div className="relative -mt-12 text-center">
+                  <Button variant="outline" className="bg-white">
+                    View larger map
                   </Button>
                 </div>
               </div>
@@ -434,28 +461,62 @@ export default function PropertyDetailsPage() {
                   </p>
                 </div>
               </div>
+
               <div className="space-y-3">
-                <Button className="w-full bg-[#191919] hover:bg-[#2a2a2a] text-white">
+                <Button
+                  className="w-full bg-[#191919] hover:bg-[#2a2a2a] text-white"
+                  onClick={handlePhoneCall}
+                  disabled={!property.phoneNum}
+                >
                   <Phone className="w-4 h-4 mr-2" />
-                  Call
+                  {property.phoneNum ? "Call" : "Phone Not Available"}
                 </Button>
-                <Button variant="outline" className="w-full">
+
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent"
+                  onClick={handleWhatsApp}
+                  disabled={!property.whatsappNum}
+                >
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  What's App
+                  {property.whatsappNum ? "WhatsApp" : "WhatsApp Not Available"}
                 </Button>
-                <Button variant="outline" className="w-full">
+
+                <Button variant="outline" className="w-full bg-transparent">
                   <Calendar className="w-4 h-4 mr-2" />
                   Book a viewing
                 </Button>
+
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full bg-transparent"
                   onClick={handleShare}
                 >
                   <Share2 className="w-4 h-4 mr-2" />
                   Share this Listing
                 </Button>
               </div>
+
+              {/* Contact Info Display */}
+              {(property.phoneNum || property.whatsappNum) && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">
+                    Contact Information:
+                  </h5>
+                  {property.phoneNum && (
+                    <p className="text-sm text-gray-600 mb-1">
+                      <Phone className="w-3 h-3 inline mr-1" />
+                      Phone: {property.phoneNum}
+                    </p>
+                  )}
+                  {property.whatsappNum && (
+                    <p className="text-sm text-gray-600">
+                      <MessageCircle className="w-3 h-3 inline mr-1" />
+                      WhatsApp: {property.whatsappNum}
+                    </p>
+                  )}
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
