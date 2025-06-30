@@ -10,6 +10,7 @@ import { toast } from "sonner";
 export default function ContactSection() {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,6 +27,7 @@ export default function ContactSection() {
         body: JSON.stringify({
           firstName,
           email,
+          subject,
           message,
         }),
       });
@@ -34,6 +36,7 @@ export default function ContactSection() {
         toast.success("Message sent successfully!");
         setFirstName("");
         setEmail("");
+        setSubject("");
         setMessage("");
       } else {
         throw new Error("Failed to send message");
@@ -74,7 +77,7 @@ export default function ContactSection() {
             <img
               src="/thoughrt.jpg"
               alt="Modern interior"
-              className="w-full h-auto md:h-[300px] object-center rounded-lg"
+              className="w-full h-auto md:h-[350px] object-center rounded-lg"
             />
           </motion.div>
 
@@ -96,6 +99,12 @@ export default function ContactSection() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Input
+              placeholder="Subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
               required
             />
             <Textarea
