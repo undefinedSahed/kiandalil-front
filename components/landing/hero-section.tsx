@@ -18,10 +18,11 @@ export default function HeroSection() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-
   useEffect(() => {
     if (debouncedQuery.trim()) {
-      router.push(`/all-listings?search=${encodeURIComponent(debouncedQuery.trim())}`);
+      router.push(
+        `/all-listings?search=${encodeURIComponent(debouncedQuery.trim())}`
+      );
     }
   }, [debouncedQuery]);
 
@@ -70,9 +71,9 @@ export default function HeroSection() {
             <button className="bg-[#191919] text-white px-6 py-3 rounded-full text-sm font-medium">
               All Properties
             </button>
-            <button className="text-gray-500 px-6 py-3 rounded-full text-sm font-medium hover:bg-gray-50">
+            {/* <button className="text-gray-500 px-6 py-3 rounded-full text-sm font-medium hover:bg-gray-50">
               Off Market
-            </button>
+            </button> */}
           </div>
 
           {/* Search Input */}
@@ -91,7 +92,11 @@ export default function HeroSection() {
             className="bg-[#191919] p-3 rounded-full hover:bg-gray-800 transition-colors"
             onClick={() => {
               if (searchQuery.trim()) {
-                router.push(`/all-listings?search=${encodeURIComponent(searchQuery.trim())}`);
+                router.push(
+                  `/all-listings?search=${encodeURIComponent(
+                    searchQuery.trim()
+                  )}`
+                );
               }
             }}
           >
