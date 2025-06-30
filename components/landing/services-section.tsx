@@ -1,80 +1,171 @@
 "use client"
 
-import { motion } from "framer-motion"
-import Image from "next/image"
+import { useState } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
-const services = [
+interface Service {
+  id: number
+  title: string
+  description: string
+  image: string
+}
+
+const services: Service[] = [
   {
     id: 1,
     title: "Rental Management",
     description: "Lorem Ipsum has been the industry's standard dummy",
-    image: "/service1.jpg",
+    image: "/slide1.jpg",
   },
   {
     id: 2,
-    title: "Property Sales",
-    description: "Lorem Ipsum has been the industry's standard dummy",
-    image: "/service2.jpg",
+    title: "Buying & Selling",
+    description: "Professional real estate buying and selling services",
+    image: "/slide2.jpg",
   },
   {
     id: 3,
     title: "Maintenance & Repair",
-    description: "Lorem Ipsum has been the industry's standard dummy",
-    image: "/service3.jpg",
+    description: "Complete property maintenance and repair solutions",
+    image: "/slide3.jpg",
   },
   {
     id: 4,
-    title: "Consultation",
-    description: "Lorem Ipsum has been the industry's standard dummy",
-    image: "/service4.jpg",
+    title: "Construction",
+    description: "Full-scale construction and renovation services",
+    image: "/slide4.jpg",
+  },
+  {
+    id: 5,
+    title: "Property Inspection",
+    description: "Thorough property inspection and assessment services",
+    image: "/slide1.jpg",
   },
 ]
 
-export default function ServicesSection() {
+export function ServicesSlider() {
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % services.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + services.length) % services.length)
+  }
+
+  // Create infinite loop by duplicating services
+  const getInfiniteServices = () => {
+    return [...services, ...services, ...services]
+  }
+
+  const infiniteServices = getInfiniteServices()
+
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+    <div className="w-full max-w-7xl mx-auto px-4 py-12">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-bold tracking-tight mb-4">Our Services</h2>
+        <p className="text-muted-foreground text-lg">Lorem Ipsum has been the industry's standard dummy</p>
+      </div>
+
+      {/* Slider Container */}
+      <div className="relative">
+        {/* Navigation Buttons */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 rounded-full shadow-lg bg-background/80 backdrop-blur-sm"
+          onClick={prevSlide}
         >
-          <h2 className="text-4xl font-bold text-[#191919] mb-4">Our Services</h2>
-          <p className="text-gray-600 text-lg">Lorem Ipsum has been the industry's standard dummy</p>
-        </motion.div>
+          <ChevronLeft className="h-4 w-4" />
+          <span className="sr-only">Previous slide</span>
+        </Button>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service, index) => (
-            <motion.div
-              key={service.id}
-              className="relative h-80 rounded-2xl overflow-hidden cursor-pointer group"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.6 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.02 }}
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 rounded-full shadow-lg bg-background/80 backdrop-blur-sm"
+          onClick={nextSlide}
+        >
+          <ChevronRight className="h-4 w-4" />
+          <span className="sr-only">Next slide</span>
+        </Button>
+
+        {/* Slides Container */}
+        <div className="overflow-hidden px-16">
+          <div
+            className="flex transition-transform duration-500 ease-in-out gap-6"
+            style={{
+              transform: `translateX(-${(currentIndex + services.length) * 306}px)`, // 280px + 24px gap + 2px adjustment
+            }}
+          >
+            {infiniteServices.map((service, index) => {
+              const actualIndex = index % services.length
+              const isActive = actualIndex === currentIndex && index >= services.length && index < services.length * 2
+
+              return (
+                <Card
+                  key={`${service.id}-${index}`}
+                  className={cn(
+                    "relative overflow-hidden flex-shrink-0 transition-all duration-500 border-0",
+                    isActive ? "w-[380px]" : "w-[280px]",
+                  )}
+                  style={{ height: "320px" }}
+                >
+                  <CardContent className="p-0 h-full relative">
+                    {/* Background Image */}
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url(${service.image})`,
+                        backgroundColor:
+                          actualIndex % 4 === 0
+                            ? "#f3f4f6"
+                            : actualIndex % 4 === 1
+                              ? "#374151"
+                              : actualIndex % 4 === 2
+                                ? "#d1d5db"
+                                : "#6b7280",
+                      }}
+                    />
+
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black/40" />
+
+                    {/* Content */}
+                    <div className="relative z-10 p-6 h-full flex flex-col justify-end text-white">
+                      <h3 className={cn("font-bold mb-2", isActive ? "text-2xl" : "text-xl")}>{service.title}</h3>
+                      <p className="text-sm opacity-90 leading-relaxed">{service.description}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Dots Indicator */}
+        <div className="flex justify-center mt-8 gap-2">
+          {services.map((_, index) => (
+            <Button
+              key={index}
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "w-2 h-2 rounded-full p-0 transition-colors duration-200",
+                index === currentIndex ? "bg-primary" : "bg-muted",
+              )}
+              onClick={() => setCurrentIndex(index)}
             >
-              <Image
-                src={service.image || "/placeholder.svg"}
-                alt={service.title}
-                fill
-                className="object-cover w-[472px] h-[452px] transition-transform duration-300 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
-
-              {/* Service Info */}
-              <div className="absolute bottom-6 left-6 right-6 text-white">
-                <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                <p className="text-sm opacity-90 leading-relaxed">{service.description}</p>
-              </div>
-            </motion.div>
+              <span className="sr-only">Go to slide {index + 1}</span>
+            </Button>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   )
 }
