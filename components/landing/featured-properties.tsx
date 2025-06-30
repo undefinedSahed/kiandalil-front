@@ -119,7 +119,9 @@ export default function FeaturedProperties() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {filteredProperties?.length > 0 ? (
             filteredProperties.map((property: Property, index: number) => (
-              <PropertyCard property={property} index={index} key={property._id} />
+              <Link href={`/property/${property._id}`}>
+                <PropertyCard property={property} index={index} key={property._id} />
+              </Link>
             ))
           ) : (
             <p className="text-center col-span-3 text-gray-500">No properties found for this category.</p>
