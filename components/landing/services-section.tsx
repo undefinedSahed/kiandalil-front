@@ -37,13 +37,7 @@ const services: Service[] = [
     title: "Construction",
     description: "Full-scale construction and renovation services",
     image: "/slide4.jpg",
-  },
-  {
-    id: 5,
-    title: "Property Inspection",
-    description: "Thorough property inspection and assessment services",
-    image: "/slide1.jpg",
-  },
+  }
 ]
 
 export function ServicesSlider() {

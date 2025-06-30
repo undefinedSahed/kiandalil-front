@@ -64,9 +64,9 @@ export default function PropertyDetailsPage() {
   >([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
-  const session= useSession();
-  const number=session
-  console.log(number,"number")
+  const session = useSession();
+  const number = session
+  console.log(number, "number")
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -187,9 +187,8 @@ export default function PropertyDetailsPage() {
             {property?.images.map((image, index) => (
               <div
                 key={index}
-                className={`relative w-20 h-16 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden ${
-                  index === selectedImageIndex ? "ring-2 ring-blue-500" : ""
-                }`}
+                className={`relative w-20 h-16 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden ${index === selectedImageIndex ? "ring-2 ring-blue-500" : ""
+                  }`}
                 onClick={() => setSelectedImageIndex(index)}
               >
                 <Image
