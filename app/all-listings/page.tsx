@@ -25,6 +25,8 @@ import {
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { addToWishlist, fetchWishlist } from "@/lib/api";
 
 interface Property {
   _id: string;
@@ -63,6 +65,7 @@ function AllListingsContent() {
   const [loading, setLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const queryClient = useQueryClient();
 
   // Initialize filters from URL params
   const initialSearch = searchParams.get("search") || "";
@@ -81,6 +84,26 @@ function AllListingsContent() {
   const [beds, setBeds] = useState(initialBeds);
   const [country, setCountry] = useState(initialCountry);
   const [sortBy, setSortBy] = useState(initialSortBy);
+
+  // Fetch wishlist using TanStack Query
+  const { data: wishlistData } = useQuery({
+    queryKey: ['wishlist'],
+    queryFn: fetchWishlist,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const wishlist = wishlistData?.data?.map((item: { propertyId: string }) => item.propertyId) || [];
+
+  // Add to wishlist mutation
+  const { mutate: toggleWishlist } = useMutation({
+    mutationFn: addToWishlist,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to update wishlist");
+    }
+  });
 
   // Update URL parameters
   const updateURL = () => {
@@ -122,8 +145,7 @@ function AllListingsContent() {
       }
 
       const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL
+        `${process.env.NEXT_PUBLIC_API_URL
         }/properties/approved/all?${params.toString()}`
       );
       const data = await response.json();
@@ -161,6 +183,11 @@ function AllListingsContent() {
   const handleFilterChange = () => {
     setCurrentPage(1);
     fetchProperties();
+  };
+
+  const handleWishlistToggle = (propertyId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleWishlist(propertyId);
   };
 
   const PropertyCard = ({ property }: { property: Property }) => (
@@ -231,8 +258,15 @@ function AllListingsContent() {
                   <span className="text-sm">Location: {property.address}</span>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="p-2">
-                <Heart className="w-5 h-5 text-gray-400" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2"
+                onClick={(e) => handleWishlistToggle(property._id, e)}
+              >
+                <Heart
+                  className={`w-5 h-5 ${wishlist.includes(property._id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}`}
+                />
               </Button>
             </div>
 

@@ -112,6 +112,39 @@ export async function updateUserProfile(id: string, data: any) {
     }
 }
 
+
+// Wishlist API
+
+export async function fetchWishlist() {
+    try {
+        const response = await api.get(`/my-wishlist`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to fetch wishlist");
+    }
+}
+
+
+export async function addToWishlist(propertyId: string) {
+    try {
+        const response = await api.post(`/add-wishlist`, { propertyId });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to add to wishlist");
+    }
+}
+
+
+export async function removeFromWishlist(id: string) {
+    try {
+        const response = await api.delete(`/remove/${id}`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to remove from wishlist");
+    }
+}
+
+
 export async function fetchAllNews() {
     try {
         const response = await api.get(`/news`);

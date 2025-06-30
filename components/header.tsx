@@ -16,7 +16,7 @@ import { useSession, signOut } from "next-auth/react";
 
 const navigationItems = [
   { name: "Listings", href: "/all-listings" },
-  { name: "Wishlist", href: "#" },
+  { name: "Wishlist", href: "/wishlist" },
   { name: "Contact", href: "/contact-us" },
   { name: "About Us", href: "/about-us" },
   { name: "Your properties", href: "/your-posts" },
