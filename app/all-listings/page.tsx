@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 interface Property {
   _id: string;
@@ -67,9 +68,11 @@ interface WishlistItem {
   };
 }
 
+const { data: session } = useSession()
+
+const token = session?.user?.accessToken
 // API functions
 const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
-  const token = localStorage.getItem("token"); // Adjust based on your auth implementation
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/my-wishlist`,
     {
@@ -88,7 +91,6 @@ const fetchWishlist = async (): Promise<{ data: WishlistItem[] }> => {
 };
 
 const addToWishlist = async (propertyId: string) => {
-  const token = localStorage.getItem("token");
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/add-wishlist`,
     {
@@ -109,7 +111,6 @@ const addToWishlist = async (propertyId: string) => {
 };
 
 const removeFromWishlist = async (wishlistId: string) => {
-  const token = localStorage.getItem("token");
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/wishlist/${wishlistId}`,
     {
@@ -234,9 +235,8 @@ function AllListingsContent() {
     if (newFilters.sortBy !== "Most Recent")
       params.set("sortBy", newFilters.sortBy);
 
-    const newUrl = `/all-listings${
-      params.toString() ? `?${params.toString()}` : ""
-    }`;
+    const newUrl = `/all-listings${params.toString() ? `?${params.toString()}` : ""
+      }`;
     window.history.pushState(null, "", newUrl);
   }, []);
 
@@ -271,8 +271,7 @@ function AllListingsContent() {
         }
 
         const response = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL
+          `${process.env.NEXT_PUBLIC_API_URL
           }/properties/approved/all?${params.toString()}`
         );
 
@@ -426,11 +425,10 @@ function AllListingsContent() {
                   onClick={(e) => handleWishlistToggle(property._id, e)}
                 >
                   <Heart
-                    className={`w-5 h-5 transition-colors ${
-                      isInWishlist
-                        ? "text-red-500 fill-red-500"
-                        : "text-gray-400 hover:text-red-400"
-                    }`}
+                    className={`w-5 h-5 transition-colors ${isInWishlist
+                      ? "text-red-500 fill-red-500"
+                      : "text-gray-400 hover:text-red-400"
+                      }`}
                   />
                 </Button>
               </div>
