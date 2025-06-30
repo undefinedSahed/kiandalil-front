@@ -1,11 +1,50 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function ContactSection() {
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName,
+          email,
+          message,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success("Message sent successfully!");
+        setFirstName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        throw new Error("Failed to send message");
+      }
+    } catch (error) {
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section className="py-20 px-6 bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -24,7 +63,7 @@ export default function ContactSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-5 gap-12  ">
+        <form onSubmit={handleSubmit} className="grid grid-cols-5 gap-12">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -44,16 +83,37 @@ export default function ContactSection() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="space-y-6 col-span-5 md:col-span-2 "
+            className="space-y-6 col-span-5 md:col-span-2"
           >
-            <Input placeholder="First Name" />
-            <Input placeholder="Email Address" type="email" />
-            <Textarea placeholder="Your Message" rows={4} />
-            <Button className="w-full bg-[#191919] hover:bg-[#2a2a2a] text-white py-3">
-              Send Message
+            <Input
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+            <Input
+              placeholder="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Textarea
+              placeholder="Your Message"
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
+            />
+            <Button
+              type="submit"
+              className="w-full bg-[#191919] hover:bg-[#2a2a2a] text-white py-3"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Send Message"}
             </Button>
           </motion.div>
-        </div>
+        </form>
       </div>
     </section>
   );

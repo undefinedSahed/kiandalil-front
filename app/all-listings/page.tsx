@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -65,103 +65,166 @@ function AllListingsContent() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Initialize filters from URL params
-  const initialSearch = searchParams.get("search") || "";
-  const initialType = searchParams.get("type") || "All Types";
-  const initialMinPrice = searchParams.get("minPrice") || "";
-  const initialMaxPrice = searchParams.get("maxPrice") || "";
-  const initialBeds = searchParams.get("beds") || "Any";
-  const initialCountry = searchParams.get("country") || "";
-  const initialSortBy = searchParams.get("sortBy") || "Most Recent";
+  const [filters, setFilters] = useState({
+    search: searchParams.get("search") || "",
+    type: searchParams.get("type") || "All Types",
+    minPrice: searchParams.get("minPrice") || "",
+    maxPrice: searchParams.get("maxPrice") || "",
+    beds: searchParams.get("beds") || "Any",
+    country: searchParams.get("country") || "",
+    city: searchParams.get("city") || "",
+    sortBy: searchParams.get("sortBy") || "Most Recent",
+  });
 
-  // Filter states
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [houseType, setHouseType] = useState(initialType);
-  const [minPrice, setMinPrice] = useState(initialMinPrice);
-  const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
-  const [beds, setBeds] = useState(initialBeds);
-  const [country, setCountry] = useState(initialCountry);
-  const [sortBy, setSortBy] = useState(initialSortBy);
+  // Add this state for cities
+  const [cities, setCities] = useState<string[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
 
-  // Update URL parameters
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (houseType !== "All Types") params.set("type", houseType);
-    if (minPrice) params.set("minPrice", minPrice);
-    if (maxPrice) params.set("maxPrice", maxPrice);
-    if (beds !== "Any") params.set("beds", beds);
-    if (country) params.set("country", country);
-    if (sortBy !== "Most Recent") params.set("sortBy", sortBy);
-
-    router.push(`/all-listings?${params.toString()}`);
-  };
-
-  // Fetch properties
-  const fetchProperties = async () => {
-    setLoading(true);
+  // Add this function to fetch cities
+  const fetchCities = useCallback(async () => {
+    setCitiesLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.set("search", searchQuery);
-      if (houseType !== "All Types") params.set("type", houseType);
-      if (minPrice) params.set("minPrice", minPrice);
-      if (maxPrice) params.set("maxPrice", maxPrice);
-      if (beds !== "Any") params.set("beds", beds);
-      if (country) params.set("country", country);
-      params.set("page", currentPage.toString());
-
-      // Add sorting
-      if (sortBy === "Price Low to High") {
-        params.set("sort", "price");
-        params.set("order", "asc");
-      } else if (sortBy === "Price High to Low") {
-        params.set("sort", "price");
-        params.set("order", "desc");
-      } else if (sortBy === "Most Popular") {
-        params.set("sort", "views");
-        params.set("order", "desc");
-      }
-
       const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL
-        }/properties/approved/all?${params.toString()}`
+        `${process.env.NEXT_PUBLIC_API_URL}/all/properties/citys`
       );
       const data = await response.json();
-
       if (data.success) {
-        setProperties(data.data);
-        setTotalResults(data.total || data.data.length);
+        setCities(data.data);
       }
     } catch (error) {
-      toast.error("Failed to fetch properties");
+      console.error("Failed to fetch cities:", error);
+      toast.error("Failed to load cities");
     } finally {
-      setLoading(false);
+      setCitiesLoading(false);
+    }
+  }, []);
+
+  // Debounced search function
+  const debounce = (func: Function, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: any[]) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
+  // Update URL parameters
+  const updateURL = useCallback((newFilters: typeof filters) => {
+    const params = new URLSearchParams();
+
+    if (newFilters.search) params.set("search", newFilters.search);
+    if (newFilters.type !== "All Types") params.set("type", newFilters.type);
+    if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice);
+    if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice);
+    if (newFilters.beds !== "Any") params.set("beds", newFilters.beds);
+    if (newFilters.country) params.set("country", newFilters.country);
+    if (newFilters.city) params.set("city", newFilters.city);
+    if (newFilters.sortBy !== "Most Recent")
+      params.set("sortBy", newFilters.sortBy);
+
+    const newUrl = `/all-listings${
+      params.toString() ? `?${params.toString()}` : ""
+    }`;
+    window.history.pushState(null, "", newUrl);
+  }, []);
+
+  // Fetch properties
+  const fetchProperties = useCallback(
+    async (filtersToUse = filters, page = currentPage) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+
+        if (filtersToUse.search) params.set("search", filtersToUse.search);
+        if (filtersToUse.type !== "All Types")
+          params.set("type", filtersToUse.type);
+        if (filtersToUse.minPrice)
+          params.set("minPrice", filtersToUse.minPrice);
+        if (filtersToUse.maxPrice)
+          params.set("maxPrice", filtersToUse.maxPrice);
+        if (filtersToUse.beds !== "Any") params.set("beds", filtersToUse.beds);
+        if (filtersToUse.country) params.set("country", filtersToUse.country);
+        if (filtersToUse.city) params.set("city", filtersToUse.city);
+
+        params.set("page", page.toString());
+
+        // Add sorting
+        if (filtersToUse.sortBy === "Price Low to High") {
+          params.set("sort", "price");
+          params.set("order", "asc");
+        } else if (filtersToUse.sortBy === "Price High to Low") {
+          params.set("sort", "price");
+          params.set("order", "desc");
+        } else if (filtersToUse.sortBy === "Most Popular") {
+          params.set("sort", "views");
+          params.set("order", "desc");
+        }
+
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/properties/approved/all?${params.toString()}`
+        );
+
+        const data = await response.json();
+        if (data.success) {
+          setProperties(data.data);
+          setTotalResults(data.total || data.data.length);
+        }
+      } catch (error) {
+        toast.error("Failed to fetch properties");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [filters, currentPage]
+  );
+
+  // Debounced fetch function
+  const debouncedFetch = useCallback(
+    debounce((newFilters: typeof filters) => {
+      fetchProperties(newFilters, 1);
+      setCurrentPage(1);
+    }, 500),
+    [fetchProperties]
+  );
+
+  // Handle filter changes
+  const handleFilterChange = (key: keyof typeof filters, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    updateURL(newFilters);
+
+    // For search input, use debounced fetch, for others fetch immediately
+    if (key === "search") {
+      debouncedFetch(newFilters);
+    } else {
+      fetchProperties(newFilters, 1);
+      setCurrentPage(1);
     }
   };
 
-  // Fetch properties when filters or page changes
-  useEffect(() => {
-    fetchProperties();
-  }, [
-    searchQuery,
-    houseType,
-    minPrice,
-    maxPrice,
-    beds,
-    country,
-    sortBy,
-    currentPage,
-  ]);
-
-  // Update URL when filters change
-  useEffect(() => {
-    updateURL();
-  }, [searchQuery, houseType, minPrice, maxPrice, beds, country, sortBy]);
-
-  const handleFilterChange = () => {
+  // Handle manual search button click
+  const handleSearch = () => {
+    fetchProperties(filters, 1);
     setCurrentPage(1);
-    fetchProperties();
   };
+
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    fetchProperties(filters, newPage);
+  };
+
+  // Initial load
+  useEffect(() => {
+    fetchProperties(filters, currentPage);
+    fetchCities(); // Add this line
+  }, []); // Only run once on mount
 
   const PropertyCard = ({ property }: { property: Property }) => (
     <motion.div
@@ -228,14 +291,16 @@ function AllListingsContent() {
                 </h4>
                 <div className="flex items-center text-gray-600 mb-4">
                   <MapPin className="w-4 h-4 mr-1" />
-                  <span className="text-sm">Location: {property.address}</span>
+                  <span className="text-sm">
+                    {property.city && `${property.city}, `}
+                    {property.address}
+                  </span>
                 </div>
               </div>
               <Button variant="ghost" size="sm" className="p-2">
                 <Heart className="w-5 h-5 text-gray-400" />
               </Button>
             </div>
-
             <div className="flex items-center space-x-4 text-gray-600 mb-6">
               <span className="text-sm font-medium">{property.type}</span>
               <div className="flex items-center">
@@ -269,7 +334,8 @@ function AllListingsContent() {
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center space-x-1"
+                className="flex items-center space-x-1 bg-transparent"
+                onClick={(e) => e.stopPropagation()}
               >
                 <Phone className="w-4 h-4" />
                 <span>Call</span>
@@ -277,10 +343,11 @@ function AllListingsContent() {
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center space-x-1"
+                className="flex items-center space-x-1 bg-transparent"
+                onClick={(e) => e.stopPropagation()}
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>What's App</span>
+                <span>WhatsApp</span>
               </Button>
             </div>
           </div>
@@ -315,86 +382,113 @@ function AllListingsContent() {
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4 items-end">
+            <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Search
               </label>
               <Input
                 placeholder="Search properties..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
+                value={filters.search}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 House Type
               </label>
               <Select
-                value={houseType}
-                onValueChange={(value) => {
-                  setHouseType(value);
-                  handleFilterChange();
-                }}
+                value={filters.type}
+                onValueChange={(value) => handleFilterChange("type", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Types">All Types</SelectItem>
-                  <SelectItem value="Apartment">Apartment</SelectItem>
+                  <SelectItem value="apartment">Apartment</SelectItem>
                   <SelectItem value="house">House</SelectItem>
                   <SelectItem value="duplex">Duplex</SelectItem>
                   <SelectItem value="villa">Villa</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Country
               </label>
               <Input
                 placeholder="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
+                value={filters.country}
+                onChange={(e) => handleFilterChange("country", e.target.value)}
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price Min
+                City
+              </label>
+              <Select
+                value={filters.city}
+                onValueChange={(value) =>
+                  handleFilterChange("city", value === "allCities" ? "" : value)
+                }
+                disabled={citiesLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      citiesLoading ? "Loading cities..." : "All Cities"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="allCities">All Cities</SelectItem>
+                  {cities.map((city) => (
+                    <SelectItem
+                      key={city}
+                      value={city.toLowerCase().replace(/\s+/g, "-")}
+                    >
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Min Price
               </label>
               <Input
                 placeholder="Min Price"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
+                value={filters.minPrice}
+                onChange={(e) => handleFilterChange("minPrice", e.target.value)}
                 type="number"
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price Max
+                Max Price
               </label>
               <Input
                 placeholder="Max Price"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
+                value={filters.maxPrice}
+                onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
                 type="number"
-                onKeyPress={(e) => e.key === "Enter" && handleFilterChange()}
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Beds
               </label>
               <Select
-                value={beds}
-                onValueChange={(value) => {
-                  setBeds(value);
-                  handleFilterChange();
-                }}
+                value={filters.beds}
+                onValueChange={(value) => handleFilterChange("beds", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Any" />
@@ -409,13 +503,38 @@ function AllListingsContent() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between mt-4">
             <Button
-              onClick={handleFilterChange}
+              onClick={handleSearch}
               className="bg-[#191919] hover:bg-[#2a2a2a] text-white"
             >
               <Search className="w-4 h-4 mr-2" />
               Search
             </Button>
+
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-600">Sort:</span>
+              <Select
+                value={filters.sortBy}
+                onValueChange={(value) => handleFilterChange("sortBy", value)}
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Most Recent">Most Recent</SelectItem>
+                  <SelectItem value="Price Low to High">
+                    Price Low to High
+                  </SelectItem>
+                  <SelectItem value="Price High to Low">
+                    Price High to Low
+                  </SelectItem>
+                  <SelectItem value="Most Popular">Most Popular</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -426,30 +545,15 @@ function AllListingsContent() {
             <span className="font-semibold text-[#191919]">
               {totalResults} results
             </span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-600">Sort:</span>
-            <Select
-              value={sortBy}
-              onValueChange={(value) => {
-                setSortBy(value);
-                handleFilterChange();
-              }}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Most Recent">Most Recent</SelectItem>
-                <SelectItem value="Price Low to High">
-                  Price Low to High
-                </SelectItem>
-                <SelectItem value="Price High to Low">
-                  Price High to Low
-                </SelectItem>
-                <SelectItem value="Most Popular">Most Popular</SelectItem>
-              </SelectContent>
-            </Select>
+            {filters.city && (
+              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                in{" "}
+                {cities.find(
+                  (city) =>
+                    city.toLowerCase().replace(/\s+/g, "-") === filters.city
+                ) || filters.city}
+              </span>
+            )}
           </div>
         </div>
 
@@ -472,6 +576,15 @@ function AllListingsContent() {
               </div>
             ))}
           </div>
+        ) : properties.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 text-lg mb-4">
+              No properties found
+            </div>
+            <p className="text-gray-400">
+              Try adjusting your filters to see more results
+            </p>
+          </div>
         ) : (
           <div className="space-y-6">
             {properties.map((property) => (
@@ -481,11 +594,11 @@ function AllListingsContent() {
         )}
 
         {/* Pagination */}
-        {!loading && properties.length > 0 && (
+        {!loading && properties.length > 0 && totalResults > 10 && (
           <div className="flex items-center justify-between mt-12">
             <Button
               variant="outline"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
             >
               Previous
@@ -500,7 +613,7 @@ function AllListingsContent() {
             </div>
             <Button
               variant="outline"
-              onClick={() => setCurrentPage((prev) => prev + 1)}
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= Math.ceil(totalResults / 10)}
             >
               Next
@@ -514,7 +627,13 @@ function AllListingsContent() {
 
 export default function AllListingsPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          Loading...
+        </div>
+      }
+    >
       <AllListingsContent />
     </Suspense>
   );

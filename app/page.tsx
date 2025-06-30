@@ -2,11 +2,11 @@ import HeroSection from "@/components/landing/hero-section";
 import CitiesSection from "@/components/landing/cities-section";
 import StatsSection from "@/components/landing/stats-section";
 import FeaturedProperties from "@/components/landing/featured-properties";
-import ServicesSection from "@/components/landing/services-section";
 import TestimonialsSection from "@/components/landing/testimonials-section";
 import ContactSection from "@/components/landing/contact-section";
 import FAQSection from "@/components/landing/faq-section";
 import CTASection from "@/components/landing/cta-section";
+import { ServicesSlider } from "@/components/landing/services-section";
 
 export default async function HomePage() {
   return (
@@ -15,7 +15,7 @@ export default async function HomePage() {
       <CitiesSection />
       <StatsSection />
       <FeaturedProperties />
-      <ServicesSection />
+      {/* <ServicesSection /> */}
       {/* <TestimonialsSection /> */}
       <ContactSection />
       <FAQSection />

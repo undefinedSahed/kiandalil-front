@@ -14,14 +14,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSession, signOut } from "next-auth/react";
 
-const navigationItems = [
+// Base navigation items that are always shown
+const baseNavigationItems = [
   { name: "Listings", href: "/all-listings" },
   { name: "Wishlist", href: "#" },
   { name: "Contact", href: "/contact-us" },
   { name: "About Us", href: "/about-us" },
-  { name: "Your properties", href: "/your-posts" },
   { name: "News", href: "/news" },
 ];
+
+// Navigation item that's only shown when logged in
+const loggedInNavigationItem = { name: "Your properties", href: "/your-posts" };
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,22 +36,27 @@ export default function Header() {
   // Get user role from session
   const userRole = session?.user?.role || "user";
 
+  // Combine navigation items based on login status
+  const navigationItems = isLoggedIn
+    ? [...baseNavigationItems, loggedInNavigationItem]
+    : baseNavigationItems;
+
   // Function to get profile link based on user role
   const getProfileLink = () => {
     if (userRole === "admin" || userRole === "seller") {
-      return "/dashboard"; // Adjust as per your routing
+      return "/dashboard";
     }
-    return "/profile"; // Adjust as per your routing
+    return "/profile";
   };
 
   // Function to get order history link for users
   const getOrderHistoryLink = () => {
-    return "/order-history"; // Adjust as per your routing
+    return "/your-posts";
   };
 
   // Handle logout
   const handleLogout = () => {
-    signOut({ callbackUrl: "/" }); // Redirect to home after logout
+    signOut({ callbackUrl: "/" });
   };
 
   return (
@@ -83,17 +91,17 @@ export default function Header() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={getProfileLink()}
-                    className="w-full cursor-pointer hover:text-[#039B06]"
-                  >
-                    <User className="mr-2 h-4 w-4 text-[#039B06]" />
-                    {userRole === "admin" || userRole === "seller"
-                      ? "Dashboard"
-                      : "Profile"}
-                  </Link>
-                </DropdownMenuItem>
+                {userRole === "admin" && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={getProfileLink()}
+                      className="w-full cursor-pointer hover:text-[#039B06]"
+                    >
+                      <User className="mr-2 h-4 w-4 text-[#039B06]" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 {userRole === "user" && (
                   <DropdownMenuItem asChild>
                     <Link
@@ -117,14 +125,13 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <div className="flex items-center space-x-2">
-              <Link href="/sign-in">
-              </Link>
-              <Link href="/register">
+              {/* <Link href="/sign-in"></Link> */}
+              <Link href="/login">
                 <Button
                   variant="default"
                   className="bg-[#014A14] hover:bg-[#039B06] text-white cursor-pointer"
                 >
-                  Sign Up
+                  Sign In
                 </Button>
               </Link>
             </div>
