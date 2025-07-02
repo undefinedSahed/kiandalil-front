@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Property {
   _id: string;
@@ -40,14 +41,23 @@ export default function YourPostsPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { data: session } = useSession();
+
+  console.log(session?.user?.id);
+  const userId = session?.user?.id;
+  const token = session?.user?.accessToken;
+
   useEffect(() => {
     const fetchUserProperties = async () => {
       try {
-        // Get user ID from session/auth - replace with actual implementation
-        const userId = "user-id-from-session"; // This should come from your auth system
-
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/properties/user/${userId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/properties/user/${userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json", // Often good to include, even for GET
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data = await response.json();
 
@@ -62,7 +72,7 @@ export default function YourPostsPage() {
     };
 
     fetchUserProperties();
-  }, []);
+  }, [session?.user]);
 
   const handleDelete = async (propertyId: string) => {
     if (!confirm("Are you sure you want to delete this property?")) return;
@@ -72,6 +82,9 @@ export default function YourPostsPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/properties/${propertyId}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 

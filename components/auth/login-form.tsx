@@ -46,7 +46,7 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-md space-y-6">
-      <div className="space-y-2">
+      <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold text-gray-900">Welcome</h1>
         <p className="text-gray-600">Please login here</p>
       </div>
@@ -127,16 +127,16 @@ export default function LoginForm() {
           </p>
         </div>
 
-        <div className="relative">
+        {/* <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-white px-2 text-gray-500">OR</span>
           </div>
-        </div>
+        </div> */}
 
-        <Button
+        {/* <Button
           type="button"
           variant="outline"
           className="w-full h-12"
@@ -161,7 +161,7 @@ export default function LoginForm() {
             />
           </svg>
           Continue with Google
-        </Button>
+        </Button> */}
       </form>
     </div>
   );

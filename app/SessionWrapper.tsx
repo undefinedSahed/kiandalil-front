@@ -7,23 +7,16 @@ import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
 export default function SessionWrapper({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
 
-
-  const shouldHide = "/dashboard"
-
-  const pathname = usePathname()
-
-
+  const hiddenRoutes = ["/dashboard", "/login", "/register"];
+  const shouldHide = hiddenRoutes.some((route) => pathname.startsWith(route));
 
   return (
     <SessionProvider>
-      {
-        !pathname.includes(shouldHide) && <Header />
-      }
+      {!shouldHide && <Header />}
       {children}
-      {
-        !pathname.includes(shouldHide) && <Footer />
-      }
+      {!shouldHide && <Footer />}
     </SessionProvider>
-  )
+  );
 }

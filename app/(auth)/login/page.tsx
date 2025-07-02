@@ -13,9 +13,6 @@ export default function LoginPage() {
           className="object-cover"
           priority
         />
-        <div className="absolute top-8 left-8">
-          <div className="text-white text-2xl font-bold">Hidden Props</div>
-        </div>
       </div>
 
       {/* Right side - Form */}
