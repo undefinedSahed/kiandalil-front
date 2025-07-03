@@ -4,14 +4,22 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  fetchApprovedProperties,
   fetchUnApprovedProperties,
   updatePropertyStatus,
 } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import Image from "next/image";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface Property {
   _id: string;
@@ -32,10 +40,22 @@ interface Property {
   images: string[];
   createdAt: string;
   approve: boolean;
+  phoneNum: string;
+  whatsappNum: string;
+  zipCode: string;
+  offMarket: boolean;
+  price: number;
+  quality: {
+    propertyType: string;
+    bed: string;
+    bath: string;
+    sqrFt: string;
+  };
 }
 
 export default function ApprovePage() {
   const queryClient = useQueryClient();
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   const { data: unApprovedProperties, isLoading } = useQuery({
     queryKey: ["unApprovedProperties"],
@@ -55,7 +75,7 @@ export default function ApprovePage() {
     },
   });
 
-  const handleApprove = async (propertyId: string, approve: boolean) => {
+  const handleApprove = (propertyId: string, approve: boolean) => {
     updatePropertyMutation({ id: propertyId, approve });
   };
 
@@ -89,15 +109,13 @@ export default function ApprovePage() {
           <Card key={property._id} className="mb-4">
             <CardContent className="p-4">
               <div className="flex items-center space-x-4">
-                {/* User Avatar */}
-                <Avatar className="w-12 h-12 flex-shrink-0">
+                <Avatar className="w-32 h-20 flex-shrink-0 rounded-md object-cover">
                   <AvatarImage src={property.images[0]} />
                   <AvatarFallback>
                     {property.userId.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
 
-                {/* User Info and Description */}
                 <div className="flex-1 min-w-0">
                   <div className="mb-1">
                     <h3 className="font-semibold text-sm">
@@ -113,10 +131,53 @@ export default function ApprovePage() {
                   </p>
                 </div>
 
-                {/* Rating and Actions */}
                 <div className="flex items-center space-x-4 flex-shrink-0">
-                  {/* Action Buttons */}
                   <div className="flex space-x-2">
+                    {/* View Button with Modal */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-green-600 border-green-600 hover:bg-green-50 px-4 py-1 text-xs"
+                          onClick={() => setSelectedProperty(property)}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle>{selectedProperty?.title}</DialogTitle>
+                          <DialogDescription>
+                            {selectedProperty?.subtitle}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-2">
+                          <p><strong>Description:</strong> {selectedProperty?.description}</p>
+                          <p><strong>Type:</strong> {selectedProperty?.type}</p>
+                          <p><strong>Price:</strong> ${selectedProperty?.price}</p>
+                          <p><strong>Location:</strong> {selectedProperty?.address}, {selectedProperty?.city}, {selectedProperty?.state}, {selectedProperty?.country} - {selectedProperty?.zipCode}</p>
+                          <p><strong>Contact:</strong> Phone: {selectedProperty?.phoneNum}, WhatsApp: {selectedProperty?.whatsappNum}</p>
+                          <p><strong>Features:</strong> {selectedProperty?.features.join(", ")}</p>
+                          <p><strong>Quality:</strong> Beds: {selectedProperty?.quality.bed}, Baths: {selectedProperty?.quality.bath}, SqFt: {selectedProperty?.quality.sqrFt}, Type: {selectedProperty?.quality.propertyType}</p>
+                          <div className="grid grid-cols-3 gap-5 pt-2">
+                            {selectedProperty?.images.map((img, idx) => (
+                              <Image
+                                key={idx}
+                                src={img}
+                                width={1000}
+                                height={1000}
+                                alt={`Property image ${idx + 1}`}
+                                className="w-full h-24 object-cover rounded"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    {/* Approve & Reject */}
                     <Button
                       size="sm"
                       variant="outline"
