@@ -1,14 +1,13 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function RegisterForm() {
@@ -22,6 +21,8 @@ export default function RegisterForm() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +69,6 @@ export default function RegisterForm() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Store email for verification
         localStorage.setItem("verificationEmail", formData.email);
         router.push("/verify-email");
       } else {
@@ -141,35 +141,56 @@ export default function RegisterForm() {
           <Label htmlFor="password" className="text-gray-700 font-medium">
             Password
           </Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Enter password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            className="h-12"
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="h-12 pr-10"
+            />
+            <div
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-2">
-          <Label
-            htmlFor="confirmPassword"
-            className="text-gray-700 font-medium"
-          >
+          <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">
             Confirm Password
           </Label>
-          <Input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            placeholder="Enter Confirm password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            className="h-12"
-          />
+          <div className="relative">
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Enter Confirm password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              className="h-12 pr-10"
+            />
+            <div
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">

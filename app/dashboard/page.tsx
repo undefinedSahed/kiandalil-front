@@ -69,8 +69,8 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                         <div className="space-y-4">
                             <h2 className="text-2xl font-bold">Total Properties</h2>
-                            <Progress value={75} className="w-96 h-2" />
-                            <p className="text-gray-400">431 more to break last month record</p>
+                            <Progress value={approvedProperties?.length} className="w-96 h-2" />
+                            <p className="text-gray-400">{100 - approvedProperties?.length} more to touch 100 properties</p>
                         </div>
                         <div className="text-6xl font-bold">{approvedProperties?.length}</div>
                     </div>

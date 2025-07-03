@@ -2,8 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { stat } from "fs";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function CTASection() {
+
+  const { status } = useSession()
+
   return (
     <section className="relative py-20 px-6 ">
       {/* Background Image */}
@@ -47,9 +53,17 @@ export default function CTASection() {
           viewport={{ once: true }}
           className="flex flex-col sm:flex-row gap-4"
         >
-          <Button className="bg-[#191919] text-white px-8 py-3 rounded-full font-semibold">
-            Join Now
-          </Button>
+          {
+            status === "authenticated" ? (
+              <Link href="/your-posts" className="w-full">
+                <Button className="">Get Started</Button>
+              </Link>
+            ) : (
+              <Link href="/auth/register" className="w-full">
+                <Button className="">Get Started</Button>
+              </Link>
+            )
+          }
         </motion.div>
       </div>
     </section>

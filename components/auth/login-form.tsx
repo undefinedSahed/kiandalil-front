@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginForm() {
@@ -19,6 +19,7 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const [isPassShow, setIsPassShow] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,19 +68,26 @@ export default function LoginForm() {
           />
         </div>
 
-        <div className="space-y-2">
+
+        <div className="space-y-2 relative">
           <Label htmlFor="password" className="text-gray-700 font-medium">
             Password
           </Label>
           <Input
             id="password"
-            type="password"
+            type={isPassShow ? "text" : "password"}
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="h-12"
+            className="h-12 pr-10"
           />
+          <div
+            className="absolute right-3 top-[60%] transform -translate-y-1/2 cursor-pointer text-gray-500"
+            onClick={() => setIsPassShow((prev) => !prev)}
+          >
+            {isPassShow ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </div>
         </div>
 
         <div className="flex items-center justify-between">
