@@ -65,7 +65,7 @@ export default function Header() {
         <Link href="/" className="text-xl text-center font-bold">
           Hidden
           <br />
-          Props
+          Prop
         </Link>
 
         {/* Desktop Navigation */}
