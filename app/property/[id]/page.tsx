@@ -456,67 +456,104 @@ export default function PropertyDetailsPage() {
                   <h4 className="font-semibold text-[#191919]">
                     {property.userId.name}
                   </h4>
-                  <p className="text-gray-600 text-sm">
-                    Developer Sales Consultant
-                  </p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <Button
                   className="w-full bg-[#191919] hover:bg-[#2a2a2a] text-white"
-                  onClick={handlePhoneCall}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!session?.data?.user) {
+                      toast.error("Please login to view contact details");
+                      return;
+                    }
+                    handlePhoneCall();
+                  }}
                   disabled={!property.phoneNum}
+                  title={
+                    !session?.data?.user
+                      ? "Login to view contact details"
+                      : undefined
+                  }
                 >
                   <Phone className="w-4 h-4 mr-2" />
-                  {property.phoneNum ? "Call" : "Phone Not Available"}
+                  {!session?.data?.user
+                    ? "Login to Call"
+                    : property.phoneNum
+                    ? "Call"
+                    : "Phone Not Available"}
                 </Button>
 
                 <Button
                   variant="outline"
                   className="w-full bg-transparent"
-                  onClick={handleWhatsApp}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!session?.data?.user) {
+                      toast.error("Please login to view contact details");
+                      return;
+                    }
+                    handleWhatsApp();
+                  }}
                   disabled={!property.whatsappNum}
+                  title={
+                    !session?.data?.user
+                      ? "Login to view contact details"
+                      : undefined
+                  }
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  {property.whatsappNum ? "WhatsApp" : "WhatsApp Not Available"}
+                  {!session?.data?.user
+                    ? "Login to Chat"
+                    : property.whatsappNum
+                    ? "WhatsApp"
+                    : "WhatsApp Not Available"}
                 </Button>
 
-                <Button variant="outline" className="w-full bg-transparent">
+                {/* <Button
+                  variant="outline"
+                  className="w-full bg-transparent"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   Book a viewing
-                </Button>
+                </Button> */}
 
                 <Button
                   variant="outline"
                   className="w-full bg-transparent"
-                  onClick={handleShare}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
                 >
                   <Share2 className="w-4 h-4 mr-2" />
                   Share this Listing
                 </Button>
               </div>
 
-              {/* Contact Info Display */}
-              {(property.phoneNum || property.whatsappNum) && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <h5 className="text-sm font-medium text-gray-700 mb-2">
-                    Contact Information:
-                  </h5>
-                  {property.phoneNum && (
-                    <p className="text-sm text-gray-600 mb-1">
-                      <Phone className="w-3 h-3 inline mr-1" />
-                      Phone: {property.phoneNum}
-                    </p>
-                  )}
-                  {property.whatsappNum && (
-                    <p className="text-sm text-gray-600">
-                      <MessageCircle className="w-3 h-3 inline mr-1" />
-                      WhatsApp: {property.whatsappNum}
-                    </p>
-                  )}
-                </div>
-              )}
+              {/* Contact Info Display - Only shown when logged in */}
+              {session?.data?.user &&
+                (property.phoneNum || property.whatsappNum) && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <h5 className="text-sm font-medium text-gray-700 mb-2">
+                      Contact Information:
+                    </h5>
+                    {property.phoneNum && (
+                      <p className="text-sm text-gray-600 mb-1">
+                        <Phone className="w-3 h-3 inline mr-1" />
+                        Phone: {property.phoneNum}
+                      </p>
+                    )}
+                    {property.whatsappNum && (
+                      <p className="text-sm text-gray-600">
+                        <MessageCircle className="w-3 h-3 inline mr-1" />
+                        WhatsApp: {property.whatsappNum}
+                      </p>
+                    )}
+                  </div>
+                )}
             </motion.div>
           </div>
         </div>
