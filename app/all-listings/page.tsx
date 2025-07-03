@@ -418,14 +418,7 @@ function AllListingsContent() {
     return (
       <motion.div
         className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.3,
-          delay: index * 0.05,
-          ease: "easeOut",
-        }}
-        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+        whileHover={{ y: -1, transition: { duration: 0.2 } }}
         onClick={() => router.push(`/property/${property._id}`)}
         layout={false}
       >

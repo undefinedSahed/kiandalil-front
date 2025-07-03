@@ -160,7 +160,7 @@ export default function YourPostsPage() {
               </Button>
             </div>
           ) : (
-            <div className="max-w-2xl mx-auto space-y-8">
+            <div className=" mx-auto space-y-8">
               {properties.map((property, index) => (
                 <motion.div
                   key={property._id}

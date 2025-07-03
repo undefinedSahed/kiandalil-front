@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X, UserCircle, User, ShoppingBag, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
@@ -29,6 +30,7 @@ const loggedInNavigationItem = { name: "Your properties", href: "/your-posts" };
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
+  const pathname = usePathname();
 
   // Determine if the user is logged in
   const isLoggedIn = status === "authenticated" && !!session?.user;
@@ -40,6 +42,11 @@ export default function Header() {
   const navigationItems = isLoggedIn
     ? [...baseNavigationItems, loggedInNavigationItem]
     : baseNavigationItems;
+
+  // Function to check if a link is active
+  const isActive = (href: string) => {
+    return pathname === href || (href !== "/" && pathname.startsWith(href));
+  };
 
   // Function to get profile link based on user role
   const getProfileLink = () => {
@@ -74,7 +81,11 @@ export default function Header() {
             <Link
               key={item.name}
               href={item.href}
-              className="text-gray-300 hover:text-white transition-colors duration-200"
+              className={`transition-all duration-200 ${
+                isActive(item.href)
+                  ? "text-white font-medium text-lg"
+                  : "text-gray-300 hover:text-white"
+              }`}
             >
               {item.name}
             </Link>
@@ -125,7 +136,6 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <div className="flex items-center space-x-2">
-              {/* <Link href="/sign-in"></Link> */}
               <Link href="/login">
                 <Button
                   variant="default"
@@ -165,7 +175,11 @@ export default function Header() {
             <Link
               key={item.name}
               href={item.href}
-              className="block px-6 py-2 text-gray-300 hover:text-white hover:bg-gray-800 transition-colors duration-200"
+              className={`block px-6 py-2 transition-all duration-200 ${
+                isActive(item.href)
+                  ? "text-white font-medium text-lg"
+                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+              }`}
               onClick={() => setIsMenuOpen(false)}
             >
               {item.name}
