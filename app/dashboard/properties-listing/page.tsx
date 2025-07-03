@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import { fetchApprovedProperties } from "@/lib/api"
 import { useQuery } from "@tanstack/react-query"
+import { Eye } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface Property {
     _id: string
@@ -61,6 +64,7 @@ export default function PropertiesPage() {
                                 <TableHead>Location</TableHead>
                                 <TableHead>Features</TableHead>
                                 <TableHead>Date Added</TableHead>
+                                <TableHead>Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -109,6 +113,18 @@ export default function PropertiesPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell>{formatDate(property.createdAt)}</TableCell>
+                                    <TableCell>
+                                        <Link href={`/property/${property._id}`} className="flex items-center gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="text-green-600 border-green-600 hover:bg-green-50 px-4 py-1 text-xs"
+                                            >
+                                                <Eye className="w-4 h-4 mr-1" />
+                                                View
+                                            </Button>
+                                        </Link>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
