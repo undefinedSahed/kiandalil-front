@@ -76,7 +76,7 @@ interface Filters {
   type: string;
   minPrice: string;
   maxPrice: string;
-  beds: string;
+  bed: string;
   country: string;
   city: string;
   sortBy: string;
@@ -103,7 +103,7 @@ function AllListingsContent() {
     type: searchParams.get("type") || "All Types",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
-    beds: searchParams.get("beds") || "Any",
+    bed: searchParams.get("bed") || "Any",
     country: searchParams.get("country") || "",
     city: searchParams.get("city") || "",
     sortBy: searchParams.get("sortBy") || "Most Recent",
@@ -277,7 +277,7 @@ function AllListingsContent() {
     if (newFilters.type !== "All Types") params.set("type", newFilters.type);
     if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice);
     if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice);
-    if (newFilters.beds !== "Any") params.set("beds", newFilters.beds);
+    if (newFilters.bed !== "Any") params.set("bed", newFilters.bed);
     if (newFilters.country) params.set("country", newFilters.country);
     if (newFilters.city) params.set("city", newFilters.city);
     if (newFilters.sortBy !== "Most Recent")
@@ -303,7 +303,7 @@ function AllListingsContent() {
           params.set("minPrice", filtersToUse.minPrice);
         if (filtersToUse.maxPrice)
           params.set("maxPrice", filtersToUse.maxPrice);
-        if (filtersToUse.beds !== "Any") params.set("beds", filtersToUse.beds);
+        if (filtersToUse.bed !== "Any") params.set("bed", filtersToUse.bed);
         if (filtersToUse.country) params.set("country", filtersToUse.country);
         if (filtersToUse.city) params.set("city", filtersToUse.city);
         if (filtersToUse.offMarket) params.set("offMarket", "true");
@@ -414,17 +414,20 @@ function AllListingsContent() {
     index: number;
   }) => {
     const isInWishlist = wishlistMap.has(property._id);
+    const { data: session } = useSession();
 
     return (
       <motion.div
-        className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
+        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
         whileHover={{ y: -1, transition: { duration: 0.2 } }}
-        onClick={() => router.push(`/property/${property._id}`)}
         layout={false}
       >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 h-full">
-          {/* Property Images - Fixed height and responsive */}
-          <div className="relative h-64 lg:h-full min-h-[280px]">
+          {/* Property Images - Clickable for details */}
+          <div
+            className="relative h-64 lg:h-full min-h-[280px] cursor-pointer"
+            onClick={() => router.push(`/property/${property._id}`)}
+          >
             {property.offMarket && (
               <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium z-20">
                 Off Market
@@ -479,8 +482,11 @@ function AllListingsContent() {
             </div>
           </div>
 
-          {/* Property Details */}
-          <div className="lg:col-span-2 p-4 lg:p-6 flex flex-col justify-between min-h-[280px]">
+          {/* Property Details - Clickable for details */}
+          <div
+            className="lg:col-span-2 p-4 lg:p-6 flex flex-col justify-between min-h-[280px] cursor-pointer"
+            onClick={() => router.push(`/property/${property._id}`)}
+          >
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 min-w-0">
@@ -502,7 +508,10 @@ function AllListingsContent() {
                   variant="ghost"
                   size="sm"
                   className="p-2 ml-2 flex-shrink-0"
-                  onClick={(e) => handleWishlistToggle(property._id, e)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleWishlistToggle(property._id, e);
+                  }}
                 >
                   <Heart
                     className={`w-5 h-5 transition-colors ${
@@ -535,8 +544,11 @@ function AllListingsContent() {
               </div>
             </div>
 
-            {/* Agent Contact - Always at bottom */}
-            <div className="border-t pt-4 mt-auto">
+            {/* Agent Contact - Non-clickable section */}
+            <div
+              className="border-t pt-4 mt-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3 min-w-0 flex-1">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
@@ -554,13 +566,23 @@ function AllListingsContent() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className={`flex items-center space-x-1 ${
-                      !property.phoneNum ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    onClick={(e) => handlePhoneCall(property, e)}
-                    disabled={!property.phoneNum}
+                    className="flex items-center space-x-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!session?.user) {
+                        toast.error("Please login to view contact details");
+                        return;
+                      }
+                      if (!property.phoneNum) {
+                        toast.error("Phone number not available");
+                        return;
+                      }
+                      handlePhoneCall(property, e);
+                    }}
                     title={
-                      property.phoneNum
+                      !session?.user
+                        ? "Login to view contact details"
+                        : property.phoneNum
                         ? `Call ${property.phoneNum}`
                         : "Phone number not available"
                     }
@@ -568,18 +590,27 @@ function AllListingsContent() {
                     <Phone className="w-4 h-4" />
                     <span className="hidden sm:inline">Call</span>
                   </Button>
+
                   <Button
                     variant="outline"
                     size="sm"
-                    className={`flex items-center space-x-1 ${
-                      !property.whatsappNum
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                    onClick={(e) => handleWhatsApp(property, e)}
-                    disabled={!property.whatsappNum}
+                    className="flex items-center space-x-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!session?.user) {
+                        toast.error("Please login to view contact details");
+                        return;
+                      }
+                      if (!property.whatsappNum) {
+                        toast.error("WhatsApp number not available");
+                        return;
+                      }
+                      handleWhatsApp(property, e);
+                    }}
                     title={
-                      property.whatsappNum
+                      !session?.user
+                        ? "Login to view contact details"
+                        : property.whatsappNum
                         ? `WhatsApp ${property.whatsappNum}`
                         : "WhatsApp number not available"
                     }
@@ -639,7 +670,7 @@ function AllListingsContent() {
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 items-end">
             <div className="xl:col-span-2">
               <Label className="block text-sm font-medium text-gray-700 mb-2">
                 Search Properties
@@ -729,8 +760,8 @@ function AllListingsContent() {
                 Bedrooms
               </Label>
               <Select
-                value={filters.beds}
-                onValueChange={(value) => handleFilterChange("beds", value)}
+                value={filters.bed}
+                onValueChange={(value) => handleFilterChange("bed", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Any" />
@@ -746,7 +777,7 @@ function AllListingsContent() {
               </Select>
             </div>
 
-            <div>
+            {/* <div>
               <Label className="block text-sm font-medium text-gray-700 mb-2">
                 Sort By
               </Label>
@@ -768,7 +799,7 @@ function AllListingsContent() {
                   <SelectItem value="Most Popular">Most Popular</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
 
           {/* Additional filters row */}
@@ -796,7 +827,7 @@ function AllListingsContent() {
                     type: "All Types",
                     minPrice: "",
                     maxPrice: "",
-                    beds: "Any",
+                    bed: "Any",
                     country: "",
                     city: "",
                     sortBy: "Most Recent",
@@ -875,7 +906,7 @@ function AllListingsContent() {
                     type: "All Types",
                     minPrice: "",
                     maxPrice: "",
-                    beds: "Any",
+                    bed: "Any",
                     country: "",
                     city: "",
                     sortBy: "Most Recent",
