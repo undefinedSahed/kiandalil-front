@@ -15,8 +15,8 @@ export default async function HomePage() {
       <CitiesSection />
       <StatsSection />
       <FeaturedProperties />
-      {/* <ServicesSection /> */}
-      {/* <TestimonialsSection /> */}
+      <ServicesSlider />
+      <TestimonialsSection />
       <ContactSection />
       <FAQSection />
       <CTASection />

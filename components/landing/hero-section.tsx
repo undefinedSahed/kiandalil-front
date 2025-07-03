@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,12 +69,16 @@ export default function HeroSection() {
         <div className="bg-white rounded-full p-2 shadow-lg flex items-center gap-2">
           {/* Toggle Buttons */}
           <div className="flex">
-            <button className="bg-[#191919] text-white px-6 py-3 rounded-full text-sm font-medium">
-              All Properties
-            </button>
-            {/* <button className="text-gray-500 px-6 py-3 rounded-full text-sm font-medium hover:bg-gray-50">
-              Off Market
-            </button> */}
+            <Link href="/all-listings">
+              <button className="bg-[#191919] text-white px-6 py-3 rounded-full text-sm font-medium">
+                All Properties
+              </button>
+            </Link>
+            <Link href={"/all-listings?offMarket=true"}>
+              <button className="text-gray-500 px-6 py-3 rounded-full text-sm font-medium hover:bg-gray-50">
+                Off Market
+              </button>
+            </Link>
           </div>
 
           {/* Search Input */}

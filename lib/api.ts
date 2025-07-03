@@ -25,9 +25,7 @@ api.interceptors.request.use(
 
 
 
-
 // Properties API
-
 
 export async function fetchCities() {
     try {
@@ -68,6 +66,18 @@ export async function updatePropertyStatus(id: string, approve: boolean) {
     }
 }
 
+
+
+// Newsletter API
+
+export async function subscribeNewsletter(email: string) {
+    try {
+        const response = await api.post(`/newsletter/subscribe`, { email });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to subscribe");
+    }
+}
 
 
 export async function postNews(subject: string, html: string) {
