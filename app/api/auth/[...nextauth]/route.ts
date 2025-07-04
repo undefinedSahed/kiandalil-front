@@ -1,5 +1,6 @@
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -30,7 +31,9 @@ export const authOptions: NextAuthOptions = {
           if (!res.ok) {
             throw new Error(result?.message || "Login failed");
           }
-           console.log(result,"result")
+
+          console.log(result, "result");
+
           if (result?.success && result?.data?.accessToken) {
             return {
               id: result.data._id,
@@ -48,16 +51,55 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
+    async jwt({ token, user, account }) {
+      // For credentials login
+      if (user && account?.provider === "credentials") {
         token.accessToken = user.accessToken;
         token.role = user.role;
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
       }
+
+      // For Google login
+      if (account?.provider === "google" && user?.email) {
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/user/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: user.name,
+                email: user.email,
+                imageLink: user.image,
+                gLogin: true,
+              }),
+            }
+          );
+
+          const data = await res.json();
+
+          if (res.ok && data?.success) {
+            token.id = data.data._id;
+            token.role = data.data.role;
+            token.accessToken = data.data.accessToken;
+            token.name = user.name;
+            token.email = user.email;
+          } else {
+            console.error("Google login failed:", data);
+          }
+        } catch (error) {
+          console.error("Error contacting backend during Google login:", error);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -73,9 +115,11 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
+    error: "/auth/error",
   },
   session: {
     strategy: "jwt",
+    maxAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
