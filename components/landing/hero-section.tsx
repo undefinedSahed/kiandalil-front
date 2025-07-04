@@ -4,11 +4,15 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const router = useRouter();
+
+  const session = useSession();
+  console.log(session);
 
   // Debounce effect
   useEffect(() => {
