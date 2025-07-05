@@ -32,7 +32,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error(result?.message || "Login failed");
           }
 
-          console.log(result, "result");
 
           if (result?.success && result?.data?.accessToken) {
             return {
