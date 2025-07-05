@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface Property {
   _id: string;
@@ -141,10 +142,17 @@ export default function YourPostsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-[#191919] mb-4">
+          <div className="text-center md:flex justify-between mb-8">
+            <div />
+            <h1 className="text-4xl font-bold text-[#191919] mb-4 md:ml-[200px]">
               Your Posts
             </h1>
+
+            <Link href="/list-property">
+              <Button className=" text-white px-8 py-3">
+                List Another Property
+              </Button>
+            </Link>
           </div>
 
           {properties.length === 0 ? (
@@ -169,9 +177,9 @@ export default function YourPostsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-[35%_63%] gap-6 p-6">
                     {/* Property Image */}
-                    <div className="relative h-64 rounded-xl overflow-hidden">
+                    <div className="relative h-64 rounded-xl overflow-hidden ">
                       <Image
                         src={
                           property.images[0] ||
@@ -209,14 +217,14 @@ export default function YourPostsPage() {
                                 PENDING
                               </span>
                             )}
-                            <Button
+                            {/* <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleEdit(property._id)}
                               className="p-2"
                             >
                               <Edit className="w-4 h-4 text-blue-600" />
-                            </Button>
+                            </Button> */}
                             <Button
                               variant="outline"
                               size="sm"
@@ -243,7 +251,7 @@ export default function YourPostsPage() {
                           <div className="flex items-center">
                             <Bath className="w-4 h-4 mr-1" />
                             <span className="text-sm">
-                              Bed {property.quality.bath}
+                              Bath {property.quality.bath}
                             </span>
                           </div>
                           <div className="flex items-center">
@@ -278,73 +286,6 @@ export default function YourPostsPage() {
           )}
         </motion.div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-[#191919] text-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">Hidden Prop</h3>
-              <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                Discover hidden property gems with Hidden Prop – your trusted
-                partner in finding, listing, and investing in real estate with
-                ease and confidence.
-              </p>
-              <div className="space-y-2 text-sm">
-                <p>📍 Linienstraße 120, 10115 Berlin</p>
-                <p>📧 biz@mail.com</p>
-                <p>📞 +1234 567 889</p>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Menu</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="/about-us" className="hover:text-white">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="/" className="hover:text-white">
-                    Latest News
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="/contact" className="hover:text-white">
-                    Contact Us
-                  </a>
-                </li>
-                <li>
-                  <a href="/" className="hover:text-white">
-                    FAQs
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Newsletter</h4>
-              <div className="space-y-4">
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400"
-                />
-                <Button className="w-full bg-white text-[#191919] hover:bg-gray-100">
-                  Subscribe
-                </Button>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-            © 2025 HiddenProp All rights reserved.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
