@@ -8,7 +8,7 @@ export default function TestimonialsSection() {
   const testimonials = [
     {
       id: 1,
-      name: "Anna M.",
+      name: "John D.",
       role: "Property Owner",
       comment:
         "Found my dream apartment in just 3 days! The virtual tour saved me hours, and the agent handled all the paperwork. Truly stress-free!",
@@ -19,15 +19,15 @@ export default function TestimonialsSection() {
       name: "Anna M.",
       role: "Property Owner",
       comment:
-        "Found my dream apartment in just 3 days! The virtual tour saved me hours, and the agent handled all the paperwork. Truly stress-free!",
+        "The rental management team is incredibly responsive and proactive. My property has never been better maintained, and I have complete peace of mind. Highly recommend!",
       image: "/avatar.jpg",
     },
     {
       id: 3,
-      name: "Anna M.",
+      name: "Leah H.",
       role: "Property Owner",
       comment:
-        "Found my dream apartment in just 3 days! The virtual tour saved me hours, and the agent handled all the paperwork. Truly stress-free!",
+        "Selling my house was daunting, but they made it so easy. From staging advice to handling negotiations, they were exceptional. Got a fantastic price too!",
       image: "/avatar.jpg",
     },
   ];
@@ -47,7 +47,8 @@ export default function TestimonialsSection() {
             What Clients Say
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Lorem Ipsum has been the industry's standard dummy
+            Hear from our satisfied clients about their experiences with our
+            services
           </p>
         </motion.div>
 

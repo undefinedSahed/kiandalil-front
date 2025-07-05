@@ -9,7 +9,14 @@ import { ReactNode } from "react";
 export default function SessionWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const hiddenRoutes = ["/dashboard", "/login", "/register"];
+  const hiddenRoutes = [
+    "/dashboard",
+    "/login",
+    "/register",
+    "/verify-email",
+    "/forgot-password",
+    "/reset-password",
+  ];
   const shouldHide = hiddenRoutes.some((route) => pathname.startsWith(route));
 
   return (

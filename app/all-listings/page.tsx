@@ -720,10 +720,7 @@ function AllListingsContent() {
                 <SelectContent>
                   <SelectItem value="allCities">All Cities</SelectItem>
                   {cities.map((city) => (
-                    <SelectItem
-                      key={city}
-                      value={city.toLowerCase().replace(/\s+/g, "-")}
-                    >
+                    <SelectItem key={city} value={city}>
                       {city}
                     </SelectItem>
                   ))}
