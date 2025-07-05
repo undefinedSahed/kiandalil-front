@@ -418,7 +418,7 @@ function AllListingsContent() {
 
     return (
       <motion.div
-        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 md:h-[280px]"
         whileHover={{ y: -1, transition: { duration: 0.2 } }}
         layout={false}
       >
@@ -437,7 +437,7 @@ function AllListingsContent() {
               {property.images.length} photos
             </div>
 
-            <div className="grid grid-cols-2 gap-1 h-full">
+            <div className="grid grid-cols-2 gap-1 h-[280px]">
               {/* Main large image */}
               <div className="relative row-span-2">
                 <Image
@@ -453,7 +453,7 @@ function AllListingsContent() {
               </div>
 
               {/* Two smaller images */}
-              <div className="grid grid-rows-2 gap-1 h-full">
+              <div className="grid grid-rows-2 gap-1 h-[280px]">
                 <div className="relative">
                   <Image
                     src={
@@ -670,7 +670,7 @@ function AllListingsContent() {
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 items-end">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 items-end">
             <div className="xl:col-span-2">
               <Label className="block text-sm font-medium text-gray-700 mb-2">
                 Search Properties

@@ -166,14 +166,14 @@ export default function PropertyDetailsPage() {
               fill
               className="object-cover"
             />
-            <Button
+            {/* <Button
               variant="ghost"
               size="sm"
               className="absolute top-4 left-4 bg-black/50 text-white hover:bg-black/70"
             >
               <ZoomIn className="w-4 h-4 mr-2" />
               Zoom
-            </Button>
+            </Button> */}
           </div>
           <div className="flex items-center justify-between p-4 bg-black/80 text-white">
             <span>
@@ -325,14 +325,14 @@ export default function PropertyDetailsPage() {
               <Images className="w-4 h-4 mr-2" />
               {property.images.length} Photos
             </Button>
-            <Button
+            {/* <Button
               variant="secondary"
               size="sm"
               className="bg-white/90 hover:bg-white"
             >
               <Map className="w-4 h-4 mr-2" />
               Map
-            </Button>
+            </Button> */}
           </div>
         </motion.div>
 
@@ -415,7 +415,7 @@ export default function PropertyDetailsPage() {
             </motion.div>
 
             {/* Map */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
@@ -434,7 +434,7 @@ export default function PropertyDetailsPage() {
                   </Button>
                 </div>
               </div>
-            </motion.div>
+            </motion.div> */}
           </div>
 
           {/* Sidebar */}

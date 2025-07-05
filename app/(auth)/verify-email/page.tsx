@@ -27,15 +27,12 @@ export default function VerifyEmailPage() {
       {/* Left side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <Image
-          src="/images/login.png"
+          src="/login.jpg"
           alt="Modern apartment interior"
           fill
           className="object-cover"
           priority
         />
-        <div className="absolute top-8 left-8">
-          <div className="text-white text-2xl font-bold">swag</div>
-        </div>
       </div>
 
       {/* Right side - Form */}
