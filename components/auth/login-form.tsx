@@ -21,7 +21,6 @@ export default function LoginForm() {
   const router = useRouter();
   const [isPassShow, setIsPassShow] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +118,7 @@ export default function LoginForm() {
             </Label>
           </div>
           <Link
-            href="/auth/forgot-password"
+            href="/forgot-password"
             className="text-sm text-gray-600 hover:underline"
           >
             Forgot Password?
