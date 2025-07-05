@@ -100,7 +100,7 @@ export default function SettingsPage() {
     const payload: any = {
       name,
       email: data.email,
-      whatsappNum: data.phone, // Assuming whatsappNum for phone
+      whatsappNum: data.phone,
       country: data.country,
       cityState: data.cityState,
       bio: data.bio,
@@ -111,11 +111,15 @@ export default function SettingsPage() {
     }
 
     try {
-      const res = await updateUserProfile(userDetails?._id, payload);
+      const res = await updateUserProfile(
+        userDetails?._id,
+        payload,
+        session?.user?.accessToken || ""
+      );
       setIsEditing(false);
       toast.success(res.message);
       queryClient.invalidateQueries({
-        queryKey: ["userDetails", "684c07b63ade7f5378be0929"],
+        queryKey: ["userDetails", session?.user?.id],
       });
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile.");
@@ -146,19 +150,44 @@ export default function SettingsPage() {
     });
   };
 
-  const handlePasswordSave = () => {
+  const handlePasswordSave = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast.error("New passwords do not match!");
       return;
     }
-    console.log("Updating password with data:", passwordData);
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-    setShowPasswordForm(false);
-    toast.success("Password updated successfully!");
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/change-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.user?.accessToken}`,
+          },
+          body: JSON.stringify({
+            oldPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to change password");
+      }
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setShowPasswordForm(false);
+      toast.success("Password updated successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to change password");
+    }
   };
 
   const handleEdit = () => {
@@ -213,12 +242,9 @@ export default function SettingsPage() {
       <Card>
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-start justify-between gap-8 md:gap-4">
-            {/* Adjusted section for the avatar and name with gray background */}
             <div className="md:basis-1/4 flex justify-center md:justify-start">
               <div className="relative rounded-full px-8 py-4 flex flex-col items-center justify-center min-w-[200px]">
                 <div className="relative group mb-2">
-                  {" "}
-                  {/* Added group for hover effect */}
                   <Avatar
                     className="w-24 h-24 cursor-pointer"
                     onClick={isEditing ? handleAvatarClick : undefined}
@@ -262,7 +288,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="md:basis-3/4 max-w-full text-center">
-              <h3 className="text-xl font-semibold mb-4">Bio</h3>
+              {/* <h3 className="text-xl font-semibold mb-4">Bio</h3> */}
               <p className="text-gray-600 leading-relaxed text-base">
                 {displayBio || ""}
               </p>
