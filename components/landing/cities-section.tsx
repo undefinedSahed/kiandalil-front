@@ -43,13 +43,11 @@ const cities = [
 export default function CitiesSection() {
   const session = useSession();
 
-
   const { data: citiesF } = useQuery({
     queryKey: ["cities"],
     queryFn: fetchCities,
-    select: (data) => data.data
-  })
-
+    select: (data) => data.data,
+  });
 
   return (
     <section className="py-16 bg-white">
@@ -63,10 +61,10 @@ export default function CitiesSection() {
           viewport={{ once: true }}
         >
           <h2 className="text-4xl font-bold text-[#191919] mb-4">
-            Find Properties in these cities
+            Find Off-Market Deals
           </h2>
           <p className="text-gray-600 text-lg">
-            Lorem Ipsum has been the industry's standard dummy
+            Listing Platform Designed For Off-Market and Undervalued Deals
           </p>
         </motion.div>
 
@@ -79,7 +77,12 @@ export default function CitiesSection() {
           viewport={{ once: true }}
         >
           {cities.map((city, index) => (
-            <Link href={`/all-listings?city=${encodeURIComponent(city.name.toLowerCase())}`} key={city.id}>
+            <Link
+              href={`/all-listings?city=${encodeURIComponent(
+                city.name.toLowerCase()
+              )}`}
+              key={city.id}
+            >
               <motion.div
                 key={city.id}
                 className="relative h-64 rounded-2xl overflow-hidden cursor-pointer group"
@@ -109,5 +112,4 @@ export default function CitiesSection() {
       </div>
     </section>
   );
-  
 }

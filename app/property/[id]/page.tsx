@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface Property {
   _id: string;
@@ -267,13 +268,15 @@ export default function PropertyDetailsPage() {
               <span>Back to listing</span>
             </Button>
             <span>/</span>
-            <span>Home</span>
-            <span>/</span>
-            <span>Property for sale</span>
-            <span>/</span>
-            <span className="text-[#191919] font-medium">
-              {property.address}
+            <span>
+              <Link href="/">Home</Link>
             </span>
+            <span>/</span>
+            <span>
+              <Link href="/all-listings">Properties</Link>
+            </span>
+            <span>/</span>
+            <span>{property.title}</span>
           </div>
         </div>
       </div>
@@ -297,7 +300,7 @@ export default function PropertyDetailsPage() {
               />
             </div>
           ) : property.images.length === 1 ? (
-            <div className="relative h-96 w-full rounded-2xl overflow-hidden">
+            <div className="relative h-[70vh] w-full rounded-2xl overflow-hidden">
               <Image
                 src={property.images[0]}
                 alt={property.title}
@@ -380,8 +383,11 @@ export default function PropertyDetailsPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <h1 className="text-4xl font-bold text-[#191919] mb-4">
-                ${property.price?.toLocaleString() || "521,102"}
+                {property.title}
               </h1>
+              <h2 className="text-3xl font-bold text-[#191919] mb-4">
+                ${property.price?.toLocaleString()}
+              </h2>
               <div className="flex items-center space-x-6 text-gray-600 mb-6">
                 <div className="flex items-center">
                   <Bed className="w-5 h-5 mr-2" />
