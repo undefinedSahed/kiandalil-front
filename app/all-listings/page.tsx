@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface Property {
   _id: string;
@@ -714,7 +715,9 @@ function AllListingsContent() {
               <span>Back</span>
             </Button>
             <span>/</span>
-            <span>Home</span>
+            <span>
+              <Link href="/">Home</Link>
+            </span>
             <span>/</span>
             <span className="text-[#191919] font-medium">Properties</span>
           </div>
