@@ -38,7 +38,7 @@ export default function AboutUsPage() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold text-[#191919] mb-6">
-              About Your Website
+              About Our Website
             </h2>
             <p className="text-gray-600 mb-8 leading-relaxed">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget

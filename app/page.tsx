@@ -6,7 +6,7 @@ import TestimonialsSection from "@/components/landing/testimonials-section";
 import ContactSection from "@/components/landing/contact-section";
 import FAQSection from "@/components/landing/faq-section";
 import CTASection from "@/components/landing/cta-section";
-import { ServicesSlider } from "@/components/landing/services-section";
+import AboutUsHome from "@/components/landing/about-home";
 
 export default async function HomePage() {
   return (
@@ -15,7 +15,7 @@ export default async function HomePage() {
       <CitiesSection />
       <StatsSection />
       <FeaturedProperties />
-      <ServicesSlider />
+      <AboutUsHome />
       <TestimonialsSection />
       <ContactSection />
       <FAQSection />
