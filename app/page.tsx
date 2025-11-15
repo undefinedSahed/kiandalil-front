@@ -13,7 +13,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white">
       <HeroSection />
       <CitiesSection />
-      <StatsSection />
+      {/* <StatsSection /> */}
       <FeaturedProperties />
       <AboutUsHome />
       <TestimonialsSection />
