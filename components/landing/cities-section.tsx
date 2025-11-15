@@ -64,7 +64,7 @@ export default function CitiesSection() {
             Find Off-Market Deals
           </h2>
           <p className="text-gray-600 text-lg">
-            Listing Platform Designed For Off-Market and Undervalued Deals
+            Listing Platform Designed for Off-Market and Undervalued Deals
           </p>
         </motion.div>
 
