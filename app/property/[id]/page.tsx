@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
-  MapPin,
   Bed,
   Bath,
   Square,
@@ -15,10 +14,7 @@ import {
   Share2,
   Phone,
   MessageCircle,
-  Calendar,
   Images,
-  Map,
-  ZoomIn,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -29,7 +25,7 @@ interface Property {
   _id: string;
   title: string;
   subtitle: string;
-  type: string;
+  units: number;
   description: string;
   images: string[];
   country: string;
@@ -390,6 +386,9 @@ export default function PropertyDetailsPage() {
               </h2>
               <div className="flex items-center space-x-6 text-gray-600 mb-6">
                 <div className="flex items-center">
+                  Units: {property?.units}
+                </div>
+                <div className="flex items-center">
                   <Bed className="w-5 h-5 mr-2" />
                   <span>{property.quality.bed}</span>
                 </div>
@@ -424,7 +423,7 @@ export default function PropertyDetailsPage() {
               <p className="text-gray-600 leading-relaxed mb-6">
                 {property.description}
               </p>
-              <p className="text-gray-600 leading-relaxed">
+              {/* <p className="text-gray-600 leading-relaxed">
                 This building offers excellent fitness facilities, fully
                 equipped fitness center, secure parking, and 24/7 concierge
                 services, while the neighborhood is home to a variety of cafes,
@@ -432,7 +431,7 @@ export default function PropertyDetailsPage() {
                 just minutes away from iconic landmarks like Brandenburg Gate
                 and Museum Island. This location provides seamless access to
                 Berlin's vibrant cultural and transportation hubs.
-              </p>
+              </p> */}
             </motion.div>
 
             {/* Features */}
@@ -632,7 +631,7 @@ export default function PropertyDetailsPage() {
                     {recProperty.quality.bed} Beds High Quality Luxury Lifestyle
                   </p>
                   <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <span>{recProperty.type}</span>
+                    <span>Units: {recProperty.units}</span>
                     <span>Bed {recProperty.quality.bed}</span>
                     <span>Bath {recProperty.quality.bath}</span>
                     <span>{recProperty.quality.sqrFt} sq ft</span>

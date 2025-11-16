@@ -36,7 +36,7 @@ interface Property {
   _id: string;
   title: string;
   subtitle: string;
-  type: string;
+  units: number;
   description: string;
   images: string[];
   country: string;
@@ -580,7 +580,7 @@ function AllListingsContent() {
 
               <div className="flex flex-wrap items-center gap-3 text-gray-600 mb-6">
                 <span className="text-sm font-medium bg-gray-100 px-2 py-1 rounded">
-                  {property.type}
+                  Units: {property?.units}
                 </span>
                 <div className="flex items-center">
                   <Bed className="w-4 h-4 mr-1" />
@@ -753,10 +753,11 @@ function AllListingsContent() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Types">All Types</SelectItem>
-                  <SelectItem value="apartment">Apartment</SelectItem>
-                  <SelectItem value="house">House</SelectItem>
-                  <SelectItem value="duplex">Duplex</SelectItem>
-                  <SelectItem value="villa">Villa</SelectItem>
+                  <SelectItem value="singlefamily">Single Family</SelectItem>
+                  <SelectItem value="multifamily">Multi Family</SelectItem>
+                  <SelectItem value="retail">Retail</SelectItem>
+                  <SelectItem value="industrial">Industrial</SelectItem>
+                  <SelectItem value="land">Land</SelectItem>
                 </SelectContent>
               </Select>
             </div>
