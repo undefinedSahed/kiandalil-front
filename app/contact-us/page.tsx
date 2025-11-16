@@ -91,9 +91,8 @@ export default function ContactPage() {
               How Can We Help You?
             </h1>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Our team is always ready to assist you with any questions or
-              concerns you might have. Fill out the form below and we'll get
-              back to you as soon as possible
+              Our team is ready to help with any questions or concerns. Fill out
+              the form below, and we'll get back to you as soon as possible.
             </p>
           </div>
 
