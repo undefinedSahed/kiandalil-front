@@ -50,7 +50,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8 }}
           className="text-4xl md:text-6xl font-bold mb-6"
         >
-          Rent the Perfect Place, Stress-Free
+          Find Real Investor-Grade Deals
         </motion.h1>
 
         <motion.p
@@ -59,8 +59,8 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-lg md:text-xl mb-8 text-gray-200"
         >
-          From cozy apartments to spacious homes, we make renting simple and
-          secure.
+          Off-market, under-market, distressed, wholesale, and underpriced MLS
+          opportunities all in one place.
         </motion.p>
       </div>
 
