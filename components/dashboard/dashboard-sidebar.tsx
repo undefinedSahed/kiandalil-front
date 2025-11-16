@@ -46,11 +46,11 @@ const menuItems = [
         url: "/dashboard/approve-page",
         icon: Verified,
     },
-    {
-        title: "News",
-        url: "/dashboard/news",
-        icon: Newspaper,
-    },
+    // {
+    //     title: "News",
+    //     url: "/dashboard/news",
+    //     icon: Newspaper,
+    // },
     {
         title: "Newsletter",
         url: "/dashboard/newsletter",
