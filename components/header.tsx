@@ -25,7 +25,7 @@ const baseNavigationItems = [
 ];
 
 // Navigation item that's only shown when logged in
-const loggedInNavigationItem = { name: "Your properties", href: "/your-posts" };
+const loggedInNavigationItem = { name: "My Listings", href: "/your-posts" };
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -120,7 +120,7 @@ export default function Header() {
                       className="w-full cursor-pointer hover:text-[#039B06]"
                     >
                       <ShoppingBag className="mr-2 h-4 w-4 text-[#039B06]" />
-                      Your Post
+                      My Listings
                     </Link>
                   </DropdownMenuItem>
                 )}
