@@ -7,11 +7,10 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function CTASection() {
-
-  const { status } = useSession()
+  const { status } = useSession();
 
   return (
-    <section className="relative py-20 px-6 ">
+    <section className="relative px-6 ">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-no-repeat h-[537px] bg-cover bg-center"
@@ -31,7 +30,7 @@ export default function CTASection() {
           viewport={{ once: true }}
           className="text-3xl md:text-5xl font-bold mb-6 "
         >
-          Unlock Exclusive Property Access
+          Start Finding Real Deals Today
         </motion.h2>
 
         <motion.p
@@ -41,9 +40,8 @@ export default function CTASection() {
           viewport={{ once: true }}
           className="text-lg md:text-xl mb-8 text-gray-200 w-[875px] "
         >
-          Join our premium community to receive priority listings, personalized
-          agent matching, and VIP open house invitations. Maximize your search
-          with insider advantages.
+          Join a platform built for investors, wholesalers, agents, and owners
+          who focus on real opportunities.
         </motion.p>
 
         <motion.div
@@ -51,19 +49,19 @@ export default function CTASection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
-          className="flex flex-col sm:flex-row gap-4"
+          className="flex gap-x-3 items-center"
         >
-          {
-            status === "authenticated" ? (
-              <Link href="/your-posts" className="w-full">
-                <Button className="">Get Started</Button>
-              </Link>
-            ) : (
-              <Link href="/register" className="w-full">
-                <Button className="">Get Started</Button>
-              </Link>
-            )
-          }
+          <Link href="/your-posts">
+            <Button className="">Browse Deals</Button>
+          </Link>
+
+          <Link
+            href={`${
+              status === "authenticated" ? "/list-property" : "/register"
+            }`}
+          >
+            <Button className="">Post a Deal</Button>
+          </Link>
         </motion.div>
       </div>
     </section>
