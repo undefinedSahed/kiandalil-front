@@ -59,7 +59,7 @@ export default function CTASection() {
                 <Button className="">Get Started</Button>
               </Link>
             ) : (
-              <Link href="/auth/register" className="w-full">
+              <Link href="/register" className="w-full">
                 <Button className="">Get Started</Button>
               </Link>
             )
