@@ -38,7 +38,7 @@ const propertySchema = z.object({
       const num = parseFloat(val);
       return !isNaN(num) && num > 0;
     }, "Price must be a positive number"),
-  type: z.string().min(1, "Property type is required"),
+  units: z.string().min(1, "Number of units is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   features: z.array(z.string()).min(1, "At least one feature is required"),
   country: z.string().min(2, "Country is required"),
@@ -52,7 +52,7 @@ const propertySchema = z.object({
   sqrFt: z.string().min(1, "Square footage is required"),
   offmarket: z.boolean().default(false),
   whatsappNum: z.number().nullable().default(null),
-  phoneNum: z.string().min(1, "Phone number is required"),
+  phoneNum: z.number().nullable().default(null),
 });
 
 type PropertyFormValues = z.infer<typeof propertySchema>;
@@ -84,7 +84,7 @@ export default function ListPropertyPage() {
     defaultValues: {
       title: "",
       subtitle: "",
-      type: "",
+      units: "",
       description: "",
       features: [],
       country: "",
@@ -99,7 +99,7 @@ export default function ListPropertyPage() {
       price: "",
       offmarket: false,
       whatsappNum: null,
-      phoneNum: "",
+      phoneNum: null,
     },
   });
 
@@ -186,7 +186,7 @@ export default function ListPropertyPage() {
       formData.append("title", data.title);
       formData.append("subtitle", data.subtitle);
       formData.append("price", data.price);
-      formData.append("type", data.type);
+      formData.append("units", data.units);
       formData.append("description", data.description);
       formData.append("features", JSON.stringify(data.features));
       formData.append("country", data.country);
@@ -196,7 +196,7 @@ export default function ListPropertyPage() {
       formData.append("address", data.address);
       formData.append("offmarket", data.offmarket.toString());
       formData.append("whatsappNum", data.whatsappNum?.toString() || "");
-      formData.append("phoneNum", data.phoneNum);
+      formData.append("phoneNum", data.phoneNum?.toString() || "");
 
       // Add quality object as JSON string
       const quality = {
@@ -339,8 +339,15 @@ export default function ListPropertyPage() {
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
                             <Input
+                              type="number"
                               placeholder="Enter phone number"
-                              {...field}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                field.onChange(
+                                  value === "" ? null : Number(value)
+                                );
+                              }}
+                              value={field.value === null ? "" : field.value}
                             />
                           </FormControl>
                           <FormMessage />
@@ -463,26 +470,15 @@ export default function ListPropertyPage() {
 
                   <FormField
                     control={form.control}
-                    name="type"
+                    name="units"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>House Type</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="apartment">Apartment</SelectItem>
-                            <SelectItem value="house">House</SelectItem>
-                            <SelectItem value="duplex">Duplex</SelectItem>
-                            <SelectItem value="villa">Villa</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Units</FormLabel>
+                        <Input
+                          type="number"
+                          placeholder="Enter number of units"
+                          {...field}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -554,6 +550,7 @@ export default function ListPropertyPage() {
                         <FormLabel>Sqr. Ft.</FormLabel>
                         <FormControl>
                           <Input
+                            type="number"
                             placeholder="Enter square footage"
                             {...field}
                           />

@@ -271,7 +271,8 @@ export default function FeaturedProperties() {
             Featured Properties
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Discover our handpicked selection of premium properties
+            Explore off-market, under-market, wholesale, and distressed
+            properties submitted by owners, agents, investors, and wholesalers.
           </p>
           {/* Category Filters */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">

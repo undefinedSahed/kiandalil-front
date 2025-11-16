@@ -17,11 +17,11 @@ import { useSession, signOut } from "next-auth/react";
 
 // Base navigation items that are always shown
 const baseNavigationItems = [
+  { name: "Home", href: "/" },
   { name: "Listings", href: "/all-listings" },
-  { name: "Wishlist", href: "/wishlist" },
-  { name: "Contact", href: "/contact-us" },
-  { name: "About Us", href: "/about-us" },
-  { name: "News", href: "/news" },
+  { name: "Saved", href: "/wishlist" },
+  { name: "Contact Us", href: "/contact-us" },
+  { name: "About", href: "/about-us" },
 ];
 
 // Navigation item that's only shown when logged in

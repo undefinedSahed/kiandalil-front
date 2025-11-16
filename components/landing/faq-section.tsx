@@ -1,40 +1,42 @@
-"use client"
+"use client";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { motion } from "framer-motion"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { motion } from "framer-motion";
 
 const faqs = [
   {
     id: 1,
-    question: "What happens to my security deposit?",
+    question: "What is Hidden Prop?",
     answer:
-      "Your security deposit is held in a secure escrow account and will be returned within 30 days of lease termination, minus any deductions for damages beyond normal wear and tear.",
+      "A marketplace for real estate deals that make financial sense: off-market, under-market, distressed, or wholesale.",
   },
   {
     id: 2,
-    question: "Are pets allowed in your properties?",
+    question: "Who can post?",
     answer:
-      "Pet policies vary by property. Many of our properties are pet-friendly with additional pet deposits and monthly fees. Please check individual property listings for specific pet policies.",
+      "Owners, agents, investors, and wholesalers with real investor-grade opportunities.",
   },
   {
     id: 3,
-    question: "How long is the lease term?",
-    answer:
-      "We offer flexible lease terms ranging from 6 months to 2 years, depending on the property and your needs. Short-term furnished rentals are also available for select properties.",
+    question: " Are MLS deals allowed?",
+    answer: "Yes, if they are priced well and offer investor value.",
   },
   {
     id: 4,
-    question: "What is included in the rent?",
-    answer:
-      "Rent typically includes basic utilities like water and trash. Some properties may include additional utilities, internet, or amenities. Check individual property listings for specific inclusions.",
+    question: "Is it free to post?",
+    answer: "Yes posting and browsing are free during launch.",
   },
   {
     id: 5,
-    question: "Is your company licensed and insured?",
-    answer:
-      "Yes, we are fully licensed real estate professionals and carry comprehensive insurance coverage. All our agents are licensed and regularly undergo continuing education.",
+    question: "How do I start?",
+    answer: "Create an account, browse deals, or post your own.",
   },
-]
+];
 
 export default function FAQSection() {
   return (
@@ -47,7 +49,9 @@ export default function FAQSection() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-[#191919] mb-4">Frequently Ask Question (FAQs)</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#191919] mb-4">
+            Frequently Ask Question (FAQs)
+          </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Find answers to common questions about our services and properties
           </p>
@@ -61,16 +65,22 @@ export default function FAQSection() {
         >
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem key={faq.id} value={`item-${faq.id}`} className="border border-gray-200 rounded-lg px-6">
+              <AccordionItem
+                key={faq.id}
+                value={`item-${faq.id}`}
+                className="border border-gray-200 rounded-lg px-6"
+              >
                 <AccordionTrigger className="text-left font-semibold text-[#191919] hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-2">{faq.answer}</AccordionContent>
+                <AccordionContent className="text-gray-600 pt-2">
+                  {faq.answer}
+                </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
