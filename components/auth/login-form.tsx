@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginForm() {
@@ -60,9 +60,15 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-md space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">Welcome</h1>
-        <p className="text-gray-600">Please login here</p>
+      <div className="flex flex-col md:flex-row gap-y-12 items-center gap-x-12">
+        <div className="">
+          <ArrowLeft className="inline-block w-5 h-5 mr-2" />
+          <Link href="/">Go Home</Link>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">Welcome</h1>
+          <p className="text-gray-600">Please login here</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
