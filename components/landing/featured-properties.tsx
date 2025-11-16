@@ -224,7 +224,7 @@ export default function FeaturedProperties() {
   useEffect(() => {
     if (wishlistData) {
       const newMap = new Map<string, string>();
-      wishlistData.forEach((item: any) => {
+      wishlistData?.forEach((item: any) => {
         newMap.set(item.propertyId, item.wishlistId);
       });
       setWishlistedProperties(newMap);
@@ -274,23 +274,6 @@ export default function FeaturedProperties() {
             Explore off-market, under-market, wholesale, and distressed
             properties submitted by owners, agents, investors, and wholesalers.
           </p>
-          {/* Category Filters */}
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                className={
-                  selectedCategory === category
-                    ? "bg-[#191919] hover:bg-[#2a2a2a] text-white"
-                    : ""
-                }
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {filteredProperties?.length > 0 ? (
