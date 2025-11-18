@@ -66,6 +66,18 @@ export async function updatePropertyStatus(id: string, approve: boolean) {
   }
 }
 
+// Delete Property
+export async function deleteProperty(id: string) {
+  try {
+    const response = await api.delete(`/properties/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Failed to delete property"
+    );
+  }
+}
+
 // Newsletter API
 
 export async function subscribeNewsletter(email: string) {

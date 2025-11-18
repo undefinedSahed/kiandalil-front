@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Eye } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  deleteProperty,
   fetchUnApprovedProperties,
   updatePropertyStatus,
 } from "@/lib/api";
@@ -25,7 +26,7 @@ interface Property {
   _id: string;
   title: string;
   subtitle: string;
-  type: string;
+  units: number;
   description: string;
   features: string[];
   userId: {
@@ -55,7 +56,9 @@ interface Property {
 
 export default function ApprovePage() {
   const queryClient = useQueryClient();
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
+    null
+  );
 
   const { data: unApprovedProperties, isLoading } = useQuery({
     queryKey: ["unApprovedProperties"],
@@ -92,6 +95,16 @@ export default function ApprovePage() {
         minute: "2-digit",
       })
     );
+  };
+
+  const handleDeleteProperty = async (propertyId: string) => {
+    const res = await deleteProperty(propertyId);
+    if (res.success === true) {
+      toast.success("Property deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["unApprovedProperties"] });
+    } else {
+      toast.error("Failed to delete property");
+    }
   };
 
   if (isLoading) {
@@ -154,13 +167,57 @@ export default function ApprovePage() {
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-2">
-                          <p><strong>Description:</strong> {selectedProperty?.description}</p>
-                          <p><strong>Type:</strong> {selectedProperty?.type}</p>
-                          <p><strong>Price:</strong> ${selectedProperty?.price}</p>
-                          <p><strong>Location:</strong> {selectedProperty?.address}, {selectedProperty?.city}, {selectedProperty?.state}, {selectedProperty?.country} - {selectedProperty?.zipCode}</p>
-                          <p><strong>Contact:</strong> Phone: {selectedProperty?.phoneNum}, WhatsApp: {selectedProperty?.whatsappNum}</p>
-                          <p><strong>Features:</strong> {selectedProperty?.features.join(", ")}</p>
-                          <p><strong>Quality:</strong> Beds: {selectedProperty?.quality.bed}, Baths: {selectedProperty?.quality.bath}, SqFt: {selectedProperty?.quality.sqrFt}, Type: {selectedProperty?.quality.propertyType}</p>
+                          <p>
+                            <strong>Description:</strong>{" "}
+                            {selectedProperty?.description}
+                          </p>
+                          <p>
+                            <strong>Property Type:</strong>{" "}
+                            {selectedProperty?.quality.propertyType ===
+                            "singleFamily"
+                              ? "Single Family"
+                              : selectedProperty?.quality.propertyType
+                              ? "Multi Family"
+                              : selectedProperty?.quality.propertyType ===
+                                "retail"
+                              ? "Retail"
+                              : selectedProperty?.quality.propertyType ===
+                                "industrial"
+                              ? "Industrial"
+                              : selectedProperty?.quality.propertyType ===
+                                "land"
+                              ? "Land"
+                              : "Other"}
+                          </p>
+                          <p>
+                            <strong>Units:</strong> {selectedProperty?.units}
+                          </p>
+                          <p>
+                            <strong>Price:</strong> ${selectedProperty?.price}
+                          </p>
+                          <p>
+                            <strong>Location:</strong>{" "}
+                            {selectedProperty?.address},{" "}
+                            {selectedProperty?.city}, {selectedProperty?.state},{" "}
+                            {selectedProperty?.country} -{" "}
+                            {selectedProperty?.zipCode}
+                          </p>
+                          <p>
+                            <strong>Contact:</strong> Phone:{" "}
+                            {selectedProperty?.phoneNum}, WhatsApp:{" "}
+                            {selectedProperty?.whatsappNum}
+                          </p>
+                          <p>
+                            <strong>Features:</strong>{" "}
+                            {selectedProperty?.features.join(", ")}
+                          </p>
+                          <p>
+                            <strong>Quality:</strong> Beds:{" "}
+                            {selectedProperty?.quality.bed}, Baths:{" "}
+                            {selectedProperty?.quality.bath}, SqFt:{" "}
+                            {selectedProperty?.quality.sqrFt}, Type:{" "}
+                            {selectedProperty?.quality.propertyType}
+                          </p>
                           <div className="grid grid-cols-3 gap-5 pt-2">
                             {selectedProperty?.images.map((img, idx) => (
                               <Image
@@ -193,6 +250,14 @@ export default function ApprovePage() {
                       onClick={() => handleApprove(property._id, false)}
                     >
                       Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-red-600 border-red-600 hover:bg-red-50 px-4 py-1 text-xs"
+                      onClick={() => handleDeleteProperty(property._id)}
+                    >
+                      Delete
                     </Button>
                   </div>
                 </div>

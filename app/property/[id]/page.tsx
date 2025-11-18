@@ -402,7 +402,18 @@ export default function PropertyDetailsPage() {
                 </div>
               </div>
               <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                {property.quality.bed} Beds
+                <strong>Property Type:</strong>{" "}
+                {property?.quality.propertyType === "singleFamily"
+                  ? "Single Family"
+                  : property?.quality.propertyType
+                  ? "Multi Family"
+                  : property?.quality.propertyType === "retail"
+                  ? "Retail"
+                  : property?.quality.propertyType === "industrial"
+                  ? "Industrial"
+                  : property?.quality.propertyType === "land"
+                  ? "Land"
+                  : "Other"}
               </h2>
               <p className="text-gray-600 mb-6">
                 {property.quality.bed} Bedroom Apartment for Sale in{" "}
