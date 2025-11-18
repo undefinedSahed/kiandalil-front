@@ -452,14 +452,20 @@ export default function ListPropertyPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="residential">
-                              Residential
+                            <SelectItem value="singleFamily">
+                              Single-Family
                             </SelectItem>
-                            <SelectItem value="commercial">
-                              Commercial
+                            <SelectItem value="multiFamily">
+                              Multifamily
+                            </SelectItem>
+                            <SelectItem value="retail">
+                              Retail
                             </SelectItem>
                             <SelectItem value="industrial">
                               Industrial
+                            </SelectItem>
+                            <SelectItem value="land">
+                              Land
                             </SelectItem>
                           </SelectContent>
                         </Select>
