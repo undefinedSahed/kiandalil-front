@@ -152,7 +152,7 @@ export const updateUserProfile = async (
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/user/profile/update/${userId}`,
     {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
