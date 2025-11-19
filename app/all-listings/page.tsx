@@ -74,7 +74,7 @@ interface WishlistItem {
 
 interface Filters {
   search: string;
-  type: string;
+  propertyType: string;
   minPrice: string;
   maxPrice: string;
   bed: string;
@@ -101,7 +101,7 @@ function AllListingsContent() {
   // Initialize filters from URL params
   const [filters, setFilters] = useState<Filters>({
     search: searchParams.get("search") || "",
-    type: searchParams.get("type") || "All Types",
+    propertyType: searchParams.get("propertyType") || "All Types",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
     bed: searchParams.get("bed") || "Any",
@@ -275,7 +275,7 @@ function AllListingsContent() {
   const updateURL = useCallback((newFilters: Filters) => {
     const params = new URLSearchParams();
     if (newFilters.search) params.set("search", newFilters.search);
-    if (newFilters.type !== "All Types") params.set("type", newFilters.type);
+    if (newFilters.propertyType !== "All Types") params.set("propertyType", newFilters.propertyType);
     if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice);
     if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice);
     if (newFilters.bed !== "Any") params.set("bed", newFilters.bed);
@@ -298,8 +298,8 @@ function AllListingsContent() {
       try {
         const params = new URLSearchParams();
         if (filtersToUse.search) params.set("search", filtersToUse.search);
-        if (filtersToUse.type !== "All Types")
-          params.set("type", filtersToUse.type);
+        if (filtersToUse.propertyType !== "All Types")
+          params.set("propertyType", filtersToUse.propertyType);
         if (filtersToUse.minPrice)
           params.set("minPrice", filtersToUse.minPrice);
         if (filtersToUse.maxPrice)
@@ -745,16 +745,16 @@ function AllListingsContent() {
                 Property Type
               </Label>
               <Select
-                value={filters.type}
-                onValueChange={(value) => handleFilterChange("type", value)}
+                value={filters.propertyType}
+                onValueChange={(value) => handleFilterChange("propertyType", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Types">All Types</SelectItem>
-                  <SelectItem value="singlefamily">Single Family</SelectItem>
-                  <SelectItem value="multifamily">Multi Family</SelectItem>
+                  <SelectItem value="singleFamily">Single Family</SelectItem>
+                  <SelectItem value="multiFamily">Multi Family</SelectItem>
                   <SelectItem value="retail">Retail</SelectItem>
                   <SelectItem value="industrial">Industrial</SelectItem>
                   <SelectItem value="land">Land</SelectItem>
@@ -879,7 +879,7 @@ function AllListingsContent() {
                 onClick={() => {
                   const resetFilters: Filters = {
                     search: "",
-                    type: "All Types",
+                    propertyType: "All Types",
                     minPrice: "",
                     maxPrice: "",
                     bed: "Any",
@@ -958,7 +958,7 @@ function AllListingsContent() {
                 onClick={() => {
                   const resetFilters: Filters = {
                     search: "",
-                    type: "All Types",
+                    propertyType: "All Types",
                     minPrice: "",
                     maxPrice: "",
                     bed: "Any",
