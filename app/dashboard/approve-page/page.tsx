@@ -247,17 +247,9 @@ export default function ApprovePage() {
                       size="sm"
                       variant="outline"
                       className="text-red-600 border-red-600 hover:bg-red-50 px-4 py-1 text-xs"
-                      onClick={() => handleApprove(property._id, false)}
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-red-600 border-red-600 hover:bg-red-50 px-4 py-1 text-xs"
                       onClick={() => handleDeleteProperty(property._id)}
                     >
-                      Delete
+                      Reject
                     </Button>
                   </div>
                 </div>

@@ -7,8 +7,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    domains: ["res.cloudinary.com"],
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

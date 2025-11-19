@@ -302,26 +302,24 @@ export default function PropertyDetailsPage() {
                 alt={property.title}
                 fill
                 className="object-cover"
+                placeholder="blur"
+                blurDataURL="/placeholder.svg"
               />
             </div>
           ) : property.images.length === 2 ? (
             <div className="grid grid-cols-2 gap-4 h-96">
-              <div className="relative rounded-2xl overflow-hidden">
-                <Image
-                  src={property.images[0]}
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="relative rounded-2xl overflow-hidden">
-                <Image
-                  src={property.images[1]}
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              {property.images.slice(0, 2).map((img, i) => (
+                <div key={i} className="relative rounded-2xl overflow-hidden">
+                  <Image
+                    src={img}
+                    alt={property.title}
+                    fill
+                    placeholder="blur"
+                    blurDataURL="/placeholder.svg"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 h-96">
@@ -330,31 +328,29 @@ export default function PropertyDetailsPage() {
                   src={property.images[0]}
                   alt={property.title}
                   fill
+                  placeholder="blur"
+                  blurDataURL="/placeholder.svg"
                   className="object-cover"
                 />
               </div>
               <div className="grid grid-rows-2 gap-4">
-                <div className="relative rounded-2xl overflow-hidden">
-                  <Image
-                    src={property.images[1]}
-                    alt={property.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="relative rounded-2xl overflow-hidden">
-                  <Image
-                    src={property.images[2]}
-                    alt={property.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                {property.images.slice(1, 3).map((img, i) => (
+                  <div key={i} className="relative rounded-2xl overflow-hidden">
+                    <Image
+                      src={img}
+                      alt={property.title}
+                      fill
+                      placeholder="blur"
+                      blurDataURL="/placeholder.svg"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Photos button - only show if there are images */}
+          {/* Photos button */}
           {property.images.length > 0 && (
             <div className="absolute bottom-4 left-4 flex space-x-2">
               <Button
@@ -434,15 +430,6 @@ export default function PropertyDetailsPage() {
               <p className="text-gray-600 leading-relaxed mb-6">
                 {property.description}
               </p>
-              {/* <p className="text-gray-600 leading-relaxed">
-                This building offers excellent fitness facilities, fully
-                equipped fitness center, secure parking, and 24/7 concierge
-                services, while the neighborhood is home to a variety of cafes,
-                restaurants, and boutiques. Situated in a prime location, it's
-                just minutes away from iconic landmarks like Brandenburg Gate
-                and Museum Island. This location provides seamless access to
-                Berlin's vibrant cultural and transportation hubs.
-              </p> */}
             </motion.div>
 
             {/* Features */}
@@ -464,28 +451,6 @@ export default function PropertyDetailsPage() {
                 ))}
               </div>
             </motion.div>
-
-            {/* Map */}
-            {/* <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="bg-white rounded-2xl p-6 shadow-sm"
-            >
-              <div className="h-64 bg-gray-200 rounded-lg overflow-hidden">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387196.07665879064!2d-74.30914977179596!3d40.69667269554806!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sbd!4v1751298686992!5m2!1sen!2sbd"
-                  width="1000"
-                  height="450"
-                  loading="lazy"
-                ></iframe>
-                <div className="relative -mt-12 text-center">
-                  <Button variant="outline" className="bg-white">
-                    View larger map
-                  </Button>
-                </div>
-              </div>
-            </motion.div> */}
           </div>
 
           {/* Sidebar */}
@@ -561,15 +526,6 @@ export default function PropertyDetailsPage() {
                     ? "WhatsApp"
                     : "WhatsApp Not Available"}
                 </Button>
-
-                {/* <Button
-                  variant="outline"
-                  className="w-full bg-transparent"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Book a viewing
-                </Button> */}
 
                 <Button
                   variant="outline"
