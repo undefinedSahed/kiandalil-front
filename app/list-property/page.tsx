@@ -268,9 +268,14 @@ export default function ListPropertyPage() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Name Of Property</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Listing Title
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter Property Name" {...field} />
+                          <Input
+                            placeholder="Short, clear headline for the property"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -282,10 +287,12 @@ export default function ListPropertyPage() {
                     name="subtitle"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Subtitle</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Subtitle
+                        </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter Property Subtitle"
+                            placeholder="One line that adds quick context"
                             {...field}
                           />
                         </FormControl>
@@ -299,10 +306,12 @@ export default function ListPropertyPage() {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Asking Price
+                        </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter Property Price"
+                            placeholder="Enter the current asking price"
                             {...field}
                           />
                         </FormControl>
@@ -316,10 +325,12 @@ export default function ListPropertyPage() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Description
+                        </FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Write About Property"
+                            placeholder="Describe the property, condition, and key details buyers should know."
                             className="min-h-[120px]"
                             {...field}
                           />
@@ -336,11 +347,13 @@ export default function ListPropertyPage() {
                       name="phoneNum"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
+                          <FormLabel className="lg:text-base text-sm">
+                            Phone Number
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
-                              placeholder="Enter phone number"
+                              placeholder="Your contact number."
                               onChange={(e) => {
                                 const value = e.target.value;
                                 field.onChange(
@@ -360,10 +373,12 @@ export default function ListPropertyPage() {
                       name="whatsappNum"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>WhatsApp Number (optional)</FormLabel>
+                          <FormLabel className="lg:text-base text-sm">
+                            WhatsApp Number (optional)
+                          </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter WhatsApp number"
+                              placeholder="WhatsApp contact number."
                               type="number"
                               onChange={(e) => {
                                 const value = e.target.value;
@@ -389,7 +404,12 @@ export default function ListPropertyPage() {
                       name="features"
                       render={() => (
                         <FormItem>
-                          <FormLabel>Features</FormLabel>
+                          <FormLabel className="lg:text-base text-sm">
+                            Features{" "}
+                            <span className="opacity-60 text-sm">
+                              (Select any features that apply)
+                            </span>
+                          </FormLabel>
                           <div className="space-y-2">
                             {availableFeatures.map((feature) => (
                               <FormField
@@ -441,14 +461,16 @@ export default function ListPropertyPage() {
                     name="propertyType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Property Type</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Property Type
+                        </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select" />
+                              <SelectValue placeholder="Choose the type of property." />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -458,15 +480,11 @@ export default function ListPropertyPage() {
                             <SelectItem value="multiFamily">
                               Multifamily
                             </SelectItem>
-                            <SelectItem value="retail">
-                              Retail
-                            </SelectItem>
+                            <SelectItem value="retail">Retail</SelectItem>
                             <SelectItem value="industrial">
                               Industrial
                             </SelectItem>
-                            <SelectItem value="land">
-                              Land
-                            </SelectItem>
+                            <SelectItem value="land">Land</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -479,10 +497,12 @@ export default function ListPropertyPage() {
                     name="units"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Units</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Units
+                        </FormLabel>
                         <Input
                           type="number"
-                          placeholder="Enter number of units"
+                          placeholder="Enter number of units, if applicable."
                           {...field}
                         />
                         <FormMessage />
@@ -495,14 +515,16 @@ export default function ListPropertyPage() {
                     name="bed"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Bed</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Bedrooms
+                        </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select" />
+                              <SelectValue placeholder="Number of bedrooms." />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -525,14 +547,16 @@ export default function ListPropertyPage() {
                     name="bath"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Bath</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Bathrooms
+                        </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select" />
+                              <SelectValue placeholder="Number of bathrooms." />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -553,11 +577,13 @@ export default function ListPropertyPage() {
                     name="sqrFt"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Sqr. Ft.</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Square Feet
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
-                            placeholder="Enter square footage"
+                            placeholder="Enter total square footage."
                             {...field}
                           />
                         </FormControl>
@@ -572,7 +598,7 @@ export default function ListPropertyPage() {
                   control={form.control}
                   name="offmarket"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -580,7 +606,12 @@ export default function ListPropertyPage() {
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel>Off Market Property</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Off Market Property{" "}
+                          <span className="opacity-60 text-sm">
+                            (Check if this is off market)
+                          </span>
+                        </FormLabel>
                       </div>
                     </FormItem>
                   )}
@@ -588,7 +619,9 @@ export default function ListPropertyPage() {
 
                 {/* Image Upload */}
                 <div className="space-y-4">
-                  <FormLabel>Upload Property Image</FormLabel>
+                  <FormLabel className="lg:text-base text-sm">
+                    Upload Property Images
+                  </FormLabel>
                   <div
                     className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                       dragActive
@@ -620,9 +653,7 @@ export default function ListPropertyPage() {
                       Choose File
                     </Button>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    You can add up to 10 images
-                  </p>
+                  <p className="text-sm text-gray-500">Add up to 10 photos.</p>
 
                   {/* Uploaded Images Preview */}
                   {uploadedImages.length > 0 && (
@@ -670,10 +701,12 @@ export default function ListPropertyPage() {
                       name="country"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Country</FormLabel>
+                          <FormLabel className="lg:text-base text-sm">
+                            Country
+                          </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter Property Country"
+                              placeholder="Enter property country"
                               {...field}
                             />
                           </FormControl>
@@ -687,10 +720,12 @@ export default function ListPropertyPage() {
                       name="state"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>State</FormLabel>
+                          <FormLabel className="lg:text-base text-sm">
+                            State
+                          </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter Property State"
+                              placeholder="Enter property state"
                               {...field}
                             />
                           </FormControl>
@@ -706,10 +741,12 @@ export default function ListPropertyPage() {
                       name="city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>City</FormLabel>
+                          <FormLabel className="lg:text-base text-sm">
+                            City
+                          </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter Property City"
+                              placeholder="Enter property city"
                               {...field}
                             />
                           </FormControl>
@@ -723,10 +760,12 @@ export default function ListPropertyPage() {
                       name="zipCode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Zip Code</FormLabel>
+                          <FormLabel className="lg:text-base text-sm">
+                            Zip Code
+                          </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter Property Zip Code"
+                              placeholder="Enter property zip code"
                               {...field}
                             />
                           </FormControl>
@@ -741,9 +780,14 @@ export default function ListPropertyPage() {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
+                        <FormLabel className="lg:text-base text-sm">
+                          Address
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter Full Address" {...field} />
+                          <Input
+                            placeholder="Enter full property address."
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -756,7 +800,7 @@ export default function ListPropertyPage() {
                   className="w-full bg-[#191919] hover:bg-[#2a2a2a] text-white py-3"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Creating..." : "Create Listing"}
+                  {isSubmitting ? "Submitting..." : "Submit Your Listing"}
                 </Button>
               </form>
             </Form>
