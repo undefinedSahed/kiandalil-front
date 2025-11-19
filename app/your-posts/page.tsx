@@ -44,7 +44,6 @@ export default function YourPostsPage() {
 
   const { data: session } = useSession();
 
-  console.log(session?.user?.id);
   const userId = session?.user?.id;
   const token = session?.user?.accessToken;
 

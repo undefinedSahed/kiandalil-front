@@ -238,8 +238,6 @@ export default function ListPropertyPage() {
       setIsSubmitting(false);
     }
   };
-  console.log(session);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">

@@ -9,8 +9,6 @@ export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [offMarket, setOffMarket] = useState(false);
   const router = useRouter();
-  const session = useSession();
-  console.log(session);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
