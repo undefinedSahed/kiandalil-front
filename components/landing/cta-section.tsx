@@ -51,7 +51,7 @@ export default function CTASection() {
           viewport={{ once: true }}
           className="flex gap-x-3 items-center"
         >
-          <Link href="/your-posts">
+          <Link href="/all-listings">
             <Button className="">Browse Deals</Button>
           </Link>
 

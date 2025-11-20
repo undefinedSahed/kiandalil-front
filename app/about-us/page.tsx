@@ -29,7 +29,7 @@ export default function AboutUsPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 items-center">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -95,7 +95,7 @@ export default function AboutUsPage() {
                 alt="Modern apartment building"
                 width={1000}
                 height={1000}
-                className="w-[516px] h-[570px] rounded-lg object-cover"
+                className="w-full h-[570px] rounded-lg object-cover"
               />
             </div>
           </motion.div>

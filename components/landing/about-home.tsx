@@ -8,10 +8,10 @@ import { MapPin, Mail, Phone } from "lucide-react";
 
 export default function AboutUsHome() {
   return (
-    <div className="min-h-screen bg-white">
+    <section className="lg:pt-20 pt-4 bg-white">
       {/* Main Content */}
       <div className="container mx-auto px-4 pt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 items-center">
           {/* Left Content */}
           {/* Right Image */}
           <motion.div
@@ -27,7 +27,7 @@ export default function AboutUsHome() {
                 alt="Modern apartment building"
                 width={1000}
                 height={1000}
-                className="w-[516px] h-[570px] rounded-lg object-cover"
+                className="w-full h-[570px] rounded-lg object-cover"
               />
             </div>
           </motion.div>
@@ -82,6 +82,6 @@ export default function AboutUsHome() {
           </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

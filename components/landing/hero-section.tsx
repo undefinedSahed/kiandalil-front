@@ -4,11 +4,14 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { Button } from "../ui/button";
 
 export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [offMarket, setOffMarket] = useState(false);
   const router = useRouter();
+  const { status } = useSession();
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -60,6 +63,30 @@ export default function HeroSection() {
           Off-market, under-market, distressed, wholesale, and underpriced MLS
           opportunities all in one place.
         </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="flex justify-center gap-x-3 items-center"
+        >
+          <Link href="/all-listings">
+            <Button className="bg-white hover:bg-white/80 text-black">
+              Browse Deals
+            </Button>
+          </Link>
+
+          <Button
+            onClick={() =>
+              router.push(
+                `${status === "authenticated" ? "/list-property" : "/register"}`
+              )
+            }
+            className="bg-white hover:bg-white/80 text-black"
+          >
+            Post a Deal
+          </Button>
+        </motion.div>
       </div>
 
       {/* Search Box */}
