@@ -34,9 +34,6 @@ export default function UsersPage() {
         select: (data) => data.data
     })
 
-    console.log(allUsers)
-
-
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold">Verified Users</h1>

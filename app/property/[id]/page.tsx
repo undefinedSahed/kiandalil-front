@@ -261,7 +261,7 @@ export default function PropertyDetailsPage() {
               className="flex items-center space-x-1"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>Back to listing</span>
+              <span>Back</span>
             </Button>
             <span>/</span>
             <span>

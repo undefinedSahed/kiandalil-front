@@ -44,7 +44,6 @@ export default function YourPostsPage() {
 
   const { data: session } = useSession();
 
-  console.log(session?.user?.id);
   const userId = session?.user?.id;
   const token = session?.user?.accessToken;
 
@@ -126,7 +125,7 @@ export default function YourPostsPage() {
               className="flex items-center space-x-1"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>Back to listing</span>
+              <span>Back</span>
             </Button>
             <span>/</span>
             <span>Home</span>
@@ -142,17 +141,23 @@ export default function YourPostsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="text-center md:flex justify-between mb-8">
+          <div
+            className={`text-center md:flex ${
+              properties.length > 0 ? "justify-between" : "justify-center"
+            }`}
+          >
             <div />
-            <h1 className="text-4xl font-bold text-[#191919] mb-4 md:ml-[200px]">
+            <h1 className="text-4xl text-center font-bold text-[#191919] mb-4">
               Your Posts
             </h1>
-
-            <Link href="/list-property">
-              <Button className=" text-white px-8 py-3">
-                List Another Property
+            {properties.length > 0 && (
+              <Button
+                onClick={() => router.push("/list-property")}
+                className="bg-[#191919] hover:bg-[#2a2a2a] text-white px-6 py-3"
+              >
+                List New Property
               </Button>
-            </Link>
+            )}
           </div>
 
           {properties.length === 0 ? (

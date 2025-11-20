@@ -238,8 +238,6 @@ export default function ListPropertyPage() {
       setIsSubmitting(false);
     }
   };
-  console.log(session);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
@@ -518,23 +516,11 @@ export default function ListPropertyPage() {
                         <FormLabel className="lg:text-base text-sm">
                           Bedrooms
                         </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Number of bedrooms." />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">1</SelectItem>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5+">5+</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input
+                          type="number"
+                          placeholder="Number of bedrooms."
+                          {...field}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -550,23 +536,11 @@ export default function ListPropertyPage() {
                         <FormLabel className="lg:text-base text-sm">
                           Bathrooms
                         </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Number of bathrooms." />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">1</SelectItem>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5+">5+</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input
+                          type="number"
+                          placeholder="Number of bathrooms."
+                          {...field}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}

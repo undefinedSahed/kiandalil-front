@@ -44,6 +44,28 @@ export async function fetchApprovedProperties() {
   }
 }
 
+export async function fetchFeaturedProperties() {
+  try {
+    const response = await api.get(`/all/featured/property`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch featured properties"
+    );
+  }
+}
+
+export async function featuredHandling(id: string) {
+  try {
+    const response = await api.patch(`/property/featured/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Failed to update featured status"
+    );
+  }
+}
+
 export async function fetchUnApprovedProperties() {
   try {
     const response = await api.get(`/properties/unapproved/all`);
@@ -130,7 +152,7 @@ export const updateUserProfile = async (
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/user/profile/update/${userId}`,
     {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

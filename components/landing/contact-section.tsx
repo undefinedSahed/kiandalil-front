@@ -49,7 +49,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="py-20 px-6 bg-gray-50">
+    <section className="lg:py-20 py-4 lg:mt-20 mt-4 px-6 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

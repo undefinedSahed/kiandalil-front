@@ -8,7 +8,11 @@ import { MapPin, Bed, Bath, Square, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { addToWishlist, fetchApprovedProperties } from "@/lib/api";
+import {
+  addToWishlist,
+  fetchApprovedProperties,
+  fetchFeaturedProperties,
+} from "@/lib/api";
 import type { Property } from "@/app/dashboard/page";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -198,7 +202,6 @@ export const PropertyCard = ({
 };
 
 export default function FeaturedProperties() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [wishlistedProperties, setWishlistedProperties] = useState<
     Map<string, string>
   >(
@@ -207,9 +210,9 @@ export default function FeaturedProperties() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
-  const { data: allProperties } = useQuery({
-    queryKey: ["properties"],
-    queryFn: fetchApprovedProperties,
+  const { data: featuredProperties } = useQuery({
+    queryKey: ["featuredProperties"],
+    queryFn: fetchFeaturedProperties,
     select: (data) => data?.data,
   });
 
@@ -230,11 +233,6 @@ export default function FeaturedProperties() {
       setWishlistedProperties(newMap);
     }
   }, [wishlistData]);
-
-  const filteredProperties = allProperties?.filter((property: Property) => {
-    if (selectedCategory === "All") return true;
-    return property.type?.toLowerCase() === selectedCategory.toLowerCase();
-  });
 
   const handleWishlistToggle = (
     propertyId: string,
@@ -258,7 +256,7 @@ export default function FeaturedProperties() {
   };
 
   return (
-    <section className="py-20 px-6 bg-white">
+    <section className="lg:pt-20 pt-4 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -276,8 +274,8 @@ export default function FeaturedProperties() {
           </p>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {filteredProperties?.length > 0 ? (
-            filteredProperties.map((property: Property, index: number) => (
+          {featuredProperties?.length > 0 ? (
+            featuredProperties.map((property: Property, index: number) => (
               <PropertyCard
                 key={property._id}
                 property={property}
@@ -289,7 +287,7 @@ export default function FeaturedProperties() {
             ))
           ) : (
             <p className="text-center col-span-3 text-gray-500">
-              No properties found for this category.
+              No featured properties found.
             </p>
           )}
         </div>
