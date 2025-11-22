@@ -225,7 +225,7 @@ export default function FeaturedProperties() {
 
   // Update wishlisted properties when wishlist data changes
   useEffect(() => {
-    if (wishlistData) {
+    if (wishlistData !== undefined) {
       const newMap = new Map<string, string>();
       wishlistData?.forEach((item: any) => {
         newMap.set(item.propertyId, item.wishlistId);

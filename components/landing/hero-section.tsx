@@ -68,10 +68,10 @@ export default function HeroSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
-          className="flex justify-center gap-x-3 items-center"
+          className="flex justify-center gap-3 items-center"
         >
-          <Link href="/all-listings">
-            <Button className="bg-white hover:bg-white/80 text-black">
+          <Link href="/all-listings" className="w-full sm:w-auto">
+            <Button className="bg-white hover:bg-white/80 text-black h-12 w-full md:w-36 text-base">
               Browse Deals
             </Button>
           </Link>
@@ -82,7 +82,7 @@ export default function HeroSection() {
                 `${status === "authenticated" ? "/list-property" : "/register"}`
               )
             }
-            className="bg-white hover:bg-white/80 text-black"
+            className="bg-white hover:bg-white/80 text-black h-12 w-full md:w-36 text-base"
           >
             Post a Deal
           </Button>
