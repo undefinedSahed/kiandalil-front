@@ -68,10 +68,10 @@ export default function HeroSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
-          className="flex justify-center gap-3 items-center"
+          className="flex justify-center gap-3 items-center lg:mt-20"
         >
           <Link href="/all-listings" className="w-full sm:w-auto">
-            <Button className="bg-white hover:bg-white/80 text-black h-12 w-full md:w-36 text-base">
+            <Button className="bg-[#191919] hover:bg-[#191919]/80 text-white h-14 w-full md:w-44 border-2 text-xl rounded-full">
               Browse Deals
             </Button>
           </Link>
@@ -82,7 +82,7 @@ export default function HeroSection() {
                 `${status === "authenticated" ? "/list-property" : "/register"}`
               )
             }
-            className="bg-white hover:bg-white/80 text-black h-12 w-full md:w-36 text-base"
+            className="bg-[#191919] hover:bg-[#191919]/80 text-white h-14 w-full md:w-44 border-2 text-xl rounded-full"
           >
             Post a Deal
           </Button>
@@ -101,21 +101,19 @@ export default function HeroSection() {
           <div className="flex w-full md:w-auto">
             <button
               onClick={() => setOffMarket(false)}
-              className={`px-4 md:px-6 py-3 rounded-full text-sm font-medium w-1/2 md:w-auto ${
-                !offMarket
-                  ? "bg-[#191919] text-white"
-                  : "text-gray-500 hover:bg-gray-50"
-              }`}
+              className={`px-4 md:px-6 py-3 rounded-full text-sm font-medium w-1/2 md:w-auto ${!offMarket
+                ? "bg-[#191919] text-white"
+                : "text-gray-500 hover:bg-gray-50"
+                }`}
             >
               All Properties
             </button>
             <button
               onClick={() => setOffMarket(true)}
-              className={`px-4 md:px-6 py-3 rounded-full text-sm font-medium w-1/2 md:w-auto ${
-                offMarket
-                  ? "bg-[#191919] text-white"
-                  : "text-gray-500 hover:bg-gray-50"
-              }`}
+              className={`px-4 md:px-6 py-3 rounded-full text-sm font-medium w-1/2 md:w-auto ${offMarket
+                ? "bg-[#191919] text-white"
+                : "text-gray-500 hover:bg-gray-50"
+                }`}
             >
               Off Market
             </button>
